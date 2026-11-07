@@ -1,5 +1,7 @@
 # Droguería · Gestión farmacéutica
 
+**Producción:** https://drogueria-ten.vercel.app
+
 SPA para la operación de una droguería: productos, inventario, POS, compras, proveedores,
 caja, gastos, devoluciones, clientes, reportes, analítica y configuración.
 
@@ -77,4 +79,5 @@ La guía está en [`DEPLOY_VERCEL.md`](./DEPLOY_VERCEL.md). Resumen:
 - Fase 0, Fase 1 y Fase 2 completas.
 - Fase 3 en curso: Sprint 6 completo (auth/roles/RLS) y Sprint 7 en curso
   (datos, analítica y sincronización).
+- **Desplegado en Vercel:** https://drogueria-ten.vercel.app
 - WhatsApp y pagos de Meta quedan fuera de alcance por ahora.

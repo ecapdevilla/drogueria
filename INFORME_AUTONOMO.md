@@ -3,7 +3,8 @@
 **Fecha:** 2026-11-06  
 **Rama Git:** `fase-3-supabase`  
 **Commit base:** `1167b1c` (`feat: fase 2 completa y base de fase 3 con Supabase`)  
-**Estado:** Sprint 7 completado en lo funcional; pendientes menores documentados al final.
+**Producción:** https://drogueria-ten.vercel.app  
+**Estado:** Sprint 7 completado en lo funcional; desplegado en Vercel.
 
 ---
 

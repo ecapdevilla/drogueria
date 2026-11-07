@@ -34,6 +34,7 @@ yarn-error.log*
 # Vercel
 .vercel
 
+
 # Testing
 coverage/
 test-results/
@@ -44,3 +45,4 @@ playwright/.cache/
 # Temp/AI generated files
 deepseek_*.ts
 deepseek_*.tsx
+.env*

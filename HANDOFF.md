@@ -45,6 +45,7 @@ Zod 4 · React Hook Form 7 · Vitest 2 + Testing Library.
 | `npm run test:e2e:pwa` | ✅ **1/1** (manifest, service worker y recarga offline sobre el build) |
 | Supabase | ✅ Login admin, RLS anónimo, 7 vistas de analítica, sync manual/automática y descarga desde la nube |
 | Lighthouse | ✅ **100 accesibilidad / 100 best practices / 100 SEO** en Dashboard, Productos, Compras, Gastos, POS, Reportes, Configuración y Analítica |
+| Vercel | ✅ Producción en **https://drogueria-ten.vercel.app**; login, Supabase Auth, SPA, manifest y service worker verificados |
 | Smoke test Supabase | ✅ Datos demo, 2 ventas sincronizadas, `v_sales_daily` con $3.000, utilidad $1.400, analítica y CSV |
 | Smoke test navegador | ✅ Respaldo descargado, migración v1→v2, demo restaurada y CSV de analítica |
 
@@ -167,6 +168,7 @@ src/
 
 - Rama de trabajo: **`fase-3-supabase`**.
 - Commit base: **`1167b1c`** (`feat: fase 2 completa y base de fase 3 con Supabase`).
+- **Producción:** https://drogueria-ten.vercel.app (proyecto `estiben-capdevilla/drogueria`).
 - Fase 0, Fase 1, Fase 2 y el Sprint 6/7 de Fase 3 están **commiteados localmente** en esa rama.
 - `master` sigue en el commit inicial `6e0b964`; **no se hizo push**.
 - El directorio padre (`Downloads`) **no** es un repo; el repo está dentro del proyecto.
@@ -329,7 +331,8 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 - [ ] Crear usuarios `cashier` e `inventory` y probar RLS.
 - [ ] Iniciar Sprint 8 (escrituras directas/RPC).
 - [ ] Revisar `npm audit` y decidir si actualizar dependencias.
-- [ ] Desplegar en Vercel con las variables de entorno.
+- [x] Desplegar en Vercel con las variables de entorno.
+- [ ] Configurar Site URL y Redirect URLs en Supabase Auth para correos.
 - [ ] Decidir si se hace commit/push adicional (la rama ya tiene un commit).
 
 **Antes de empezar un sprint:** confirmar alcance con el usuario y anotarlo aquí.
@@ -350,6 +353,22 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 ---
 
 ## 9. Bitácora
+
+### 2026-11-07 — Despliegue en Vercel
+- Proyecto Vercel **`estiben-capdevilla/drogueria`** creado y conectado a GitHub.
+- Variables configuradas en Production, Preview y Development:
+  `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_AUTH_ENABLED=true`,
+  `VITE_CLOUD_AUTO_SYNC=true`.
+- **Producción:** https://drogueria-ten.vercel.app
+- Verificado con Playwright:
+  - `/` redirige a `/login`.
+  - `/analitica` también redirige a `/login` (rewrite + guard).
+  - Manifest y 3 iconos cargan.
+  - Service worker activo en `/sw.js`.
+  - Login llega a Supabase Auth y devuelve el error genérico correcto.
+  - 0 errores de consola.
+- Scripts de verificación: `scripts/verify-deploy.mjs` y `scripts/verify-login.mjs`.
+- Pendiente: Site URL y Redirect URLs en Supabase Auth para correos de confirmación/recuperación.
 
 ### 2026-11-07 — Atajos de teclado y agilización
 - Nuevo `useHotkeys` + panel de ayuda `ShortcutsHelp` (F1), navegación `Alt + número` y
@@ -603,4 +622,5 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 - **SEO/privacidad:** `robots.txt` con `Disallow: /` y `meta robots noindex` porque es una
   app privada. Lighthouse dio 100/100/100 en Configuración y Analítica.
 - **Vercel:** `vercel.json` incluye rewrites SPA y cabeceras para `sw.js`/manifest/assets.
-  La guía está en `DEPLOY_VERCEL.md`; no se desplegó desde este entorno.
+  La guía está en `DEPLOY_VERCEL.md`; **producción:** https://drogueria-ten.vercel.app.
+  Variables configuradas en Production, Preview y Development.

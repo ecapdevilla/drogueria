@@ -7,6 +7,17 @@
 - Proyecto Supabase configurado (ver `supabase/README.md`).
 - Variables de entorno listas.
 
+## Estado actual del despliegue
+
+- **Producción:** https://drogueria-ten.vercel.app
+- **Proyecto Vercel:** `estiben-capdevilla/drogueria`
+- **Variables:** `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_AUTH_ENABLED=true`
+  y `VITE_CLOUD_AUTO_SYNC=true` en Production, Preview y Development.
+- **Verificado:** login, conexión con Supabase Auth, rutas SPA, manifest, service worker y
+  0 errores de consola.
+- **Pendiente:** configurar `Site URL` y `Redirect URLs` en Supabase Auth para correos de
+  confirmación/recuperación (el login por contraseña ya funciona).
+
 ## Estado actual del repositorio
 
 - Repo: `https://github.com/ecapdevilla/drogueria`
@@ -52,10 +63,11 @@ No agregues `service_role`, contraseñas de base de datos ni tokens privados.
 
 En Supabase → **Authentication → URL Configuration**:
 
-- **Site URL:** `https://tu-proyecto.vercel.app`
-- **Redirect URLs:** agrega `https://tu-proyecto.vercel.app/**` y, si usas previews,
-  `https://*.vercel.app/**`.
-- En desarrollo agrega también `http://localhost:5173/**`.
+- **Site URL:** `https://drogueria-ten.vercel.app`
+- **Redirect URLs:**
+  - `https://drogueria-ten.vercel.app/**`
+  - `https://*.vercel.app/**` (previews)
+  - `http://localhost:5173/**` (desarrollo)
 
 Si desactivas los registros públicos, crea los usuarios desde el panel de Supabase.
 
@@ -88,7 +100,19 @@ tengan login y Supabase. La CLI debe estar autenticada; si no, usa el panel web.
    - **Configuración → Sincronización con Supabase** funciona.
    - La PWA se puede instalar y recargar offline.
 
-## 5. Después del despliegue
+## 6. Verificación automatizada
+
+El repo incluye dos scripts para comprobar un despliegue:
+
+```powershell
+node scripts/verify-deploy.mjs https://drogueria-ten.vercel.app
+node scripts/verify-login.mjs https://drogueria-ten.vercel.app
+```
+
+El primero revisa redirección al login, rewrite de SPA, manifest y service worker.
+El segundo comprueba que el formulario realmente llega a Supabase Auth.
+
+## 7. Después del despliegue
 
 - Prueba una venta y espera la sincronización automática.
 - Revisa `v_sales_daily` y `v_product_performance` en Supabase.

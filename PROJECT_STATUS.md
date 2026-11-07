@@ -319,13 +319,13 @@ Completados y verificados los cinco sprints:
 - Migración/sincronización local → Supabase (manual y automática para admin).
 - Descarga desde Supabase para hidratar un equipo nuevo.
 - Pantalla `/analitica` con KPIs, tablas, filtros y exportaciones CSV.
-- Lighthouse 100/100/100 y configuración de Vercel lista.
+- Lighthouse 100/100/100 y despliegue en Vercel: https://drogueria-ten.vercel.app.
 
 ## Pendiente
 
 - Sprint 8: escrituras operativas directas a Supabase (RPC transaccionales) y multiusuario.
 - Probar RLS con usuarios `cashier` e `inventory`.
-- Despliegue real en Vercel y revisión de `npm audit`.
+- Configurar Site URL/Redirect URLs en Supabase Auth y revisar `npm audit`.
 - WhatsApp/IA quedan fuera de alcance por ahora.
 
 Ver [`INFORME_AUTONOMO.md`](./INFORME_AUTONOMO.md) para el detalle de la última sesión.
