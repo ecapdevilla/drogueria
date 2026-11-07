@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
@@ -21,6 +21,7 @@ import { cop } from '../utils/money';
 import { formatDate } from '../utils/date';
 import { downloadCSV } from '../utils/csv';
 import { cashAudit, cashAuditToCSV, expectedCash } from '../services/cash.service';
+import { useHotkeys } from '../hooks/useHotkeys';
 
 const AUDIT_METHODS = [
   { method: 'CASH', expenseMethod: 'EFECTIVO', label: 'Efectivo' },
@@ -46,6 +47,8 @@ export default function Cash() {
   const [openAmount, setOpenAmount] = useState('');
   const [counted, setCounted] = useState('');
   const [auditSessionId, setAuditSessionId] = useState('');
+  const openInputRef = useRef<HTMLInputElement>(null);
+  const closeInputRef = useRef<HTMLInputElement>(null);
 
   const sessions = db.cashSessions;
   const activeSession = sessions.find(s => s.status === 'OPEN');
@@ -77,6 +80,44 @@ export default function Cash() {
     closeCash(activeSession.id, value);
     setCounted('');
   };
+
+  useEffect(() => {
+    if (!activeSession) openInputRef.current?.focus();
+  }, [activeSession]);
+
+  useHotkeys(
+    [
+      {
+        key: 'n',
+        handler: () => {
+          if (!activeSession) openInputRef.current?.focus();
+        },
+      },
+      {
+        key: 'n',
+        alt: true,
+        allowInInput: true,
+        handler: () => {
+          if (!activeSession) openInputRef.current?.focus();
+        },
+      },
+      {
+        key: 'c',
+        handler: () => {
+          if (activeSession) closeInputRef.current?.focus();
+        },
+      },
+      {
+        key: 'c',
+        alt: true,
+        allowInInput: true,
+        handler: () => {
+          if (activeSession) closeInputRef.current?.focus();
+        },
+      },
+    ],
+    [activeSession],
+  );
 
   return (
     <div className="space-y-6">
@@ -144,12 +185,16 @@ export default function Cash() {
 
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
             <Input
+              ref={openInputRef}
               type="number"
               min={0}
               step="1"
               placeholder="Monto inicial (COP)"
               value={openAmount}
               onChange={event => setOpenAmount(event.target.value)}
+              onKeyDown={event => {
+                if (event.key === 'Enter') handleOpen();
+              }}
               disabled={!!activeSession}
               aria-label="Monto inicial de caja"
             />
@@ -175,12 +220,16 @@ export default function Cash() {
             <>
               <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                 <Input
+                  ref={closeInputRef}
                   type="number"
                   min={0}
                   step="1"
                   placeholder="Dinero contado (COP)"
                   value={counted}
                   onChange={event => setCounted(event.target.value)}
+                  onKeyDown={event => {
+                    if (event.key === 'Enter') handleClose();
+                  }}
                   aria-label="Dinero contado en caja"
                 />
                 <Button variant="danger" onClick={handleClose} disabled={!counted}>

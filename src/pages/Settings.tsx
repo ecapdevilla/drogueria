@@ -24,6 +24,7 @@ import {
 } from '../services/cloud-migration.service';
 import { isAuthEnabled } from '../lib/supabase';
 import { CLOUD_SYNC_STORAGE_KEY } from '../services/cloud-sync.service';
+import { useHotkeys } from '../hooks/useHotkeys';
 import { cop } from '../utils/money';
 import { formatDate } from '../utils/date';
 
@@ -136,6 +137,28 @@ export default function Settings() {
       setCloudLoading(false);
     }
   };
+
+  useHotkeys(
+    [
+      { key: 'b', handler: handleBackup },
+      { key: 'b', alt: true, allowInInput: true, handler: handleBackup },
+      {
+        key: 's',
+        handler: () => {
+          if (isAuthEnabled && profile?.role === 'admin') setCloudOpen(true);
+        },
+      },
+      {
+        key: 's',
+        alt: true,
+        allowInInput: true,
+        handler: () => {
+          if (isAuthEnabled && profile?.role === 'admin') setCloudOpen(true);
+        },
+      },
+    ],
+    [handleBackup, profile?.role],
+  );
 
   const stats = [
     ['Versión del esquema', db.version],

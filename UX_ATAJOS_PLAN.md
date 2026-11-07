@@ -1,77 +1,85 @@
 # Plan de atajos y agilización de módulos
 
 Objetivo: reducir clics y hacer más rápida la operación diaria (escaneo, alta rápida y
-navegación) en todos los módulos, con foco inicial en el buscador y atajos de teclado.
+navegación) en todos los módulos.
 
-## Implementado en esta iteración
+## Implementado
 
-- **Atajos globales** (`src/hooks/useHotkeys.ts` + `src/components/ShortcutsHelp.tsx`):
-  - `F1`: abrir/cerrar el panel de ayuda de atajos.
-  - `Alt + 1…9` y `Alt + 0`: ir a los módulos (1 Dashboard … 9 Devoluciones, 0 Clientes).
-  - `F2`: enfocar el buscador de la pantalla actual (donde existe).
-- **Productos**:
-  - El foco inicia en el buscador.
-  - `F2` vuelve al buscador.
-  - `N` abre “Nuevo producto”.
-  - `Ctrl + Enter` guarda el producto con el modal abierto.
-  - Si la búsqueda no coincide con ningún código, aparece “no está en el catálogo” con un
-    botón **Crear producto** que rellena el código de barras/código interno.
-- **Inventario**:
-  - El foco inicia en el buscador de lotes.
-  - `F2` vuelve al buscador.
-- **Compras**:
-  - Cada línea tiene un campo **Código de barras**: escanea o escribe y presiona Enter para
-    seleccionar el producto automáticamente.
-  - `N` abre “Nueva compra” (con el modal cerrado).
-  - `Ctrl + Enter` guarda la compra con el modal abierto.
-- **POS** (ya existente): `Enter` escanea, `F2` busca, `F3` cobra.
+### Global (`Shell` + `ShortcutsHelp`)
 
-## Pendiente (siguientes iteraciones)
+- `F1`: abrir/cerrar el panel de atajos con la lista global y la contextual.
+- `Alt + 1…9` y `Alt + 0`: ir a los módulos principales.
+- `Alt + R / A / C`: Reportes / Analítica / Configuración.
+- `F2`: enfocar el buscador de la pantalla actual.
 
-### 1. Productos libres en compras
+### Productos
 
-Hoy el campo de código de barras solo selecciona productos **ya existentes**. Falta poder
-comprar un producto que aún no está guardado. Dos opciones:
+- Foco inicial en el buscador.
+- `F2` vuelve al buscador.
+- `Alt + N` (o `N` fuera de inputs): nuevo producto.
+- `Ctrl + Enter`: guardar con el modal abierto.
+- Si un código no existe, banner **Crear producto** que rellena código de barras e interno.
 
-- **A) Alta rápida desde Compras:** si el código no existe, abrir un modal de “crear
-  producto” prellenado con el código y dejar continuar la compra.
-- **B) Línea libre:** permitir ítems sin `productId` (solo nombre + costo + lote + vencimiento),
-  y crear el producto/lote al guardar.
+### Inventario
 
-**Decisión pendiente con el usuario.** Recomendación: A (mantiene el catálogo íntegro).
+- Foco inicial en el buscador de lotes.
+- `F2` vuelve al buscador.
 
-### 2. Atajos en el resto de módulos
+### Compras
 
-| Módulo | Atajos propuestos |
-| --- | --- |
-| POS | `F4` imprimir recibo · `Escape` limpiar carrito (ya parcial) |
-| Caja | `N` abrir caja · `C` cerrar caja · `F2` foco |
-| Gastos | `N` nuevo gasto · `Ctrl+Enter` guardar · `F2` foco |
-| Devoluciones | `F2` foco · `Ctrl+Enter` procesar |
-| Clientes | `N` nuevo cliente · `F2` foco |
-| Proveedores | `N` nuevo proveedor · `F2` foco |
-| Reportes | `F2` foco en fechas · exportaciones con `Ctrl+E` |
-| Configuración | `B` respaldo · `S` sincronizar |
+- Campo **Código de barras** por línea: Enter busca y selecciona el producto.
+- Si el código no existe, **Crear producto** abre un alta rápida con el código precargado,
+  crea el producto y lo selecciona en la línea.
+- `Alt + N` (o `N` fuera de inputs): nueva compra.
+- `Ctrl + Enter`: guardar la compra.
 
-### 3. Navegación
+### Caja
 
-- Añadir `Alt + R` (reportes), `Alt + A` (analítica) y `Alt + C` (configuración).
-- Permitir personalizar teclas en Configuración (opcional, más adelante).
+- `Alt + N`: enfocar monto de apertura.
+- `Alt + C`: enfocar monto de cierre.
+- Enter en cada monto ejecuta la acción.
 
-### 4. Foco inicial por defecto
+### Gastos
 
-- En todo módulo con buscador, el foco inicia en el buscador.
-- En modales de formulario, el foco inicia en el primer campo (ya lo hace el `Modal`).
+- `Alt + N`: nuevo gasto.
+- `Ctrl + Enter`: guardar.
 
-## Cómo implementar
+### Devoluciones
 
-- Usa `useHotkeys([...], deps)` en cada página; las teclas de una letra se ignoran al
-  escribir en inputs (marcar `allowInInput` para `F1`/`F2`/`Ctrl+Enter`).
-- Registra los atajos contextuales en `ShortcutsHelp` para documentarlos al usuario.
-- Añade una prueba por atajo con `renderHook`/`userEvent` si la lógica lo amerita.
+- Foco inicial en la selección de venta.
+- `F2`: volver a la selección.
+- `Ctrl + Enter`: procesar la devolución.
+
+### Clientes y Proveedores
+
+- Foco inicial en el buscador.
+- `F2`: volver al buscador.
+- `Alt + N`: nuevo registro.
+- `Ctrl + Enter`: guardar.
+
+### Reportes
+
+- `F2`: enfocar la fecha inicial.
+- `Alt + E`: exportar ventas CSV.
+
+### Configuración
+
+- `Alt + B`: descargar respaldo.
+- `Alt + S`: abrir la confirmación de sincronización con Supabase.
+
+### POS
+
+- Ya existente: Enter escanea, `F2` busca, `F3` cobra.
+
+## Pendiente / próximas mejoras
+
+- POS: `F4` imprimir recibo y `Escape` limpiar carrito.
+- Búsqueda por código de barras en Inventario y Reportes (hoy es texto libre).
+- Personalización de teclas desde Configuración.
+- Mostrar un indicador visual de “atajo disponible” en los botones principales.
 
 ## Pruebas
 
-- `src/hooks/useHotkeys.test.ts` cubre el comportamiento del hook.
-- Smoke test en navegador de autofoco, `N`, banner de producto inexistente, búsqueda por
-  código en compras y panel `F1`.
+- `src/hooks/useHotkeys.test.ts`: modificadores, inputs y `allowInInput`.
+- `e2e/atajos.spec.ts`: F1, Alt+N, alta rápida desde Productos y desde Compras.
+- Regresión completa: unitarias, E2E y PWA.

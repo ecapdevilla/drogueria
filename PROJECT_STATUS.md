@@ -9,7 +9,7 @@
 - TypeScript compilation: PASS (`npm run typecheck`)
 - Lint: PASS (`npm run lint`)
 - Tests: PASS (194/194, `npm run test`)
-- E2E: PASS (5/5) + PWA (1/1)
+- E2E: PASS (7/7) + PWA (1/1)
 - Vite build: PASS (`npm run build`)
 - Lighthouse: 100 accesibilidad / 100 best practices / 100 SEO
 - Runtime: `npm run dev` (por defecto http://localhost:5173)

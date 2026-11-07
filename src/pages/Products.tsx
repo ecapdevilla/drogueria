@@ -104,6 +104,7 @@ export default function Products() {
     [
       { key: 'F2', allowInInput: true, handler: () => searchRef.current?.focus() },
       { key: 'n', handler: () => openAdd() },
+      { key: 'n', alt: true, allowInInput: true, handler: () => openAdd() },
       {
         key: 'Enter',
         ctrl: true,

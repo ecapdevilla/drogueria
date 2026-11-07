@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   BarChart3,
   Download,
@@ -21,6 +21,7 @@ import { cop } from '../utils/money';
 import { formatDateOnly } from '../utils/date';
 import { downloadCSV } from '../utils/csv';
 import { paymentLabel } from '../utils/payments';
+import { useHotkeys } from '../hooks/useHotkeys';
 import {
   categoryPerformanceToCSV,
   filterMovementsByRange,
@@ -36,6 +37,7 @@ export default function Reports() {
   const buildReport = useAppStore(s => s.buildReport);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
+  const fromRef = useRef<HTMLInputElement>(null);
 
   const range = from || to ? { from: from || undefined, to: to || undefined } : undefined;
   const report = buildReport(range);
@@ -91,6 +93,15 @@ export default function Reports() {
     downloadCSV(`movimientos-${suffix}.csv`, movementsToCSV(filteredMovements, db.products));
   };
 
+  useHotkeys(
+    [
+      { key: 'F2', allowInInput: true, handler: () => fromRef.current?.focus() },
+      { key: 'e', handler: handleExportSales },
+      { key: 'e', alt: true, allowInInput: true, handler: handleExportSales },
+    ],
+    [handleExportSales],
+  );
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -107,6 +118,7 @@ export default function Reports() {
         <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div className="flex flex-wrap items-end gap-3">
             <Input
+              ref={fromRef}
               label="Desde"
               type="date"
               value={from}

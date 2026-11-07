@@ -1,9 +1,9 @@
 import React, { ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { ShortcutsHelp } from '../ShortcutsHelp';
-import { useHotkeys } from '../../hooks/useHotkeys';
+import { PAGE_SHORTCUTS, useHotkeys } from '../../hooks/useHotkeys';
 import { ToastContainer } from '../ui/Toast';
 
 const MODULE_ROUTES: Record<string, string> = {
@@ -23,6 +23,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [helpOpen, setHelpOpen] = React.useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useHotkeys([
     {
@@ -35,6 +36,9 @@ export function Shell({ children }: { children: ReactNode }) {
       alt: true,
       handler: () => navigate(path),
     })),
+    { key: 'r', alt: true, handler: () => navigate('/reportes') },
+    { key: 'a', alt: true, handler: () => navigate('/analitica') },
+    { key: 'c', alt: true, handler: () => navigate('/configuracion') },
   ]);
 
   return (
@@ -60,7 +64,11 @@ export function Shell({ children }: { children: ReactNode }) {
 
       <ToastContainer />
 
-      <ShortcutsHelp open={helpOpen} onClose={() => setHelpOpen(false)} />
+      <ShortcutsHelp
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+        contextual={PAGE_SHORTCUTS[location.pathname] ?? []}
+      />
     </div>
   );
 }

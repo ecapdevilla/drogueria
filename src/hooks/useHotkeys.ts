@@ -58,5 +58,51 @@ export const GLOBAL_SHORTCUTS: { keys: string; description: string }[] = [
   { keys: 'F1', description: 'Mostrar u ocultar este panel de ayuda' },
   { keys: 'Alt + 1…9', description: 'Ir a un módulo (1 Dashboard … 9 Devoluciones)' },
   { keys: 'Alt + 0', description: 'Ir a Clientes' },
+  { keys: 'Alt + R / A / C', description: 'Ir a Reportes / Analítica / Configuración' },
   { keys: 'F2', description: 'Enfocar el buscador de la pantalla actual' },
 ];
+
+/** Atajos contextuales que se muestran en F1 según la ruta. */
+export const PAGE_SHORTCUTS: Record<string, { keys: string; description: string }[]> = {
+  '/productos': [
+    { keys: 'Alt + N', description: 'Nuevo producto' },
+    { keys: 'F2', description: 'Enfocar el buscador' },
+    { keys: 'Ctrl + Enter', description: 'Guardar el producto' },
+  ],
+  '/inventario': [{ keys: 'F2', description: 'Enfocar el buscador de lotes' }],
+  '/compras': [
+    { keys: 'Alt + N', description: 'Nueva compra' },
+    { keys: 'Enter', description: 'Buscar producto por código de barras' },
+    { keys: 'Ctrl + Enter', description: 'Guardar la compra' },
+  ],
+  '/caja': [
+    { keys: 'Alt + N', description: 'Enfocar el monto de apertura' },
+    { keys: 'Alt + C', description: 'Enfocar el monto de cierre' },
+  ],
+  '/gastos': [
+    { keys: 'Alt + N', description: 'Nuevo gasto' },
+    { keys: 'Ctrl + Enter', description: 'Guardar el gasto' },
+  ],
+  '/devoluciones': [
+    { keys: 'F2', description: 'Enfocar la selección de venta' },
+    { keys: 'Ctrl + Enter', description: 'Procesar la devolución' },
+  ],
+  '/clientes': [
+    { keys: 'Alt + N', description: 'Nuevo cliente' },
+    { keys: 'F2', description: 'Enfocar el buscador' },
+    { keys: 'Ctrl + Enter', description: 'Guardar el cliente' },
+  ],
+  '/proveedores': [
+    { keys: 'Alt + N', description: 'Nuevo proveedor' },
+    { keys: 'F2', description: 'Enfocar el buscador' },
+    { keys: 'Ctrl + Enter', description: 'Guardar el proveedor' },
+  ],
+  '/reportes': [
+    { keys: 'F2', description: 'Enfocar la fecha inicial' },
+    { keys: 'Alt + E', description: 'Exportar ventas CSV' },
+  ],
+  '/configuracion': [
+    { keys: 'Alt + B', description: 'Descargar respaldo' },
+    { keys: 'Alt + S', description: 'Abrir sincronización con Supabase' },
+  ],
+};

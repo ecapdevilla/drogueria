@@ -16,6 +16,7 @@ import { ExpenseInput, expenseSchema } from '../domain/schemas';
 import { Expense } from '../types';
 import { cop } from '../utils/money';
 import { formatDate } from '../utils/date';
+import { useHotkeys } from '../hooks/useHotkeys';
 
 const CATEGORIES = ['Combustible', 'Mantenimiento', 'Sueldos', 'Servicios', 'Materiales', 'Otro'];
 
@@ -51,6 +52,22 @@ export default function Expenses() {
     setOpen(false);
     reset(EMPTY_EXPENSE);
   };
+
+  useHotkeys(
+    [
+      { key: 'n', handler: () => setOpen(true) },
+      { key: 'n', alt: true, allowInInput: true, handler: () => setOpen(true) },
+      {
+        key: 'Enter',
+        ctrl: true,
+        allowInInput: true,
+        handler: () => {
+          if (open) void handleSubmit(onSubmit)();
+        },
+      },
+    ],
+    [open, handleSubmit, onSubmit],
+  );
 
   const total = db.expenses.reduce((sum, expense) => sum + expense.amount, 0);
 

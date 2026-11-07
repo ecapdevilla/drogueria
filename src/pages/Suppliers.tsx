@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useHotkeys } from '../hooks/useHotkeys';
 import { Building2, Mail, Pencil, Phone, Plus, Power, PowerOff, Search } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { Button } from '../components/ui/Button';
@@ -37,6 +38,7 @@ export default function Suppliers() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Supplier | null>(null);
   const [deactivateTarget, setDeactivateTarget] = useState<Supplier | null>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -86,6 +88,27 @@ export default function Suppliers() {
     closeModal();
   };
 
+  useEffect(() => {
+    searchRef.current?.focus();
+  }, []);
+
+  useHotkeys(
+    [
+      { key: 'F2', allowInInput: true, handler: () => searchRef.current?.focus() },
+      { key: 'n', handler: () => openNew() },
+      { key: 'n', alt: true, allowInInput: true, handler: () => openNew() },
+      {
+        key: 'Enter',
+        ctrl: true,
+        allowInInput: true,
+        handler: () => {
+          if (open) void handleSubmit(onSubmit)();
+        },
+      },
+    ],
+    [open, openNew, handleSubmit, onSubmit],
+  );
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -104,6 +127,7 @@ export default function Suppliers() {
           <div className="relative w-full sm:max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input
+              ref={searchRef}
               placeholder="Buscar por nombre, NIT, contacto o correo..."
               value={q}
               onChange={event => setQ(event.target.value)}

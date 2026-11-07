@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useHotkeys } from '../hooks/useHotkeys';
 import { Phone, Search, UserPlus, Users } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { Button } from '../components/ui/Button';
@@ -20,6 +21,7 @@ export default function Customers() {
   const searchCustomers = useAppStore(s => s.searchCustomers);
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -39,6 +41,27 @@ export default function Customers() {
     reset(EMPTY_CUSTOMER);
   };
 
+  useEffect(() => {
+    searchRef.current?.focus();
+  }, []);
+
+  useHotkeys(
+    [
+      { key: 'F2', allowInInput: true, handler: () => searchRef.current?.focus() },
+      { key: 'n', handler: () => setOpen(true) },
+      { key: 'n', alt: true, allowInInput: true, handler: () => setOpen(true) },
+      {
+        key: 'Enter',
+        ctrl: true,
+        allowInInput: true,
+        handler: () => {
+          if (open) void handleSubmit(onSubmit)();
+        },
+      },
+    ],
+    [open, handleSubmit, onSubmit],
+  );
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -57,6 +80,7 @@ export default function Customers() {
           <div className="relative w-full sm:max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input
+              ref={searchRef}
               placeholder="Buscar por nombre, teléfono o identificación..."
               value={q}
               onChange={event => setQ(event.target.value)}

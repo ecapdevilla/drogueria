@@ -41,7 +41,7 @@ Zod 4 · React Hook Form 7 · Vitest 2 + Testing Library.
 | `npm run lint` | ✅ Sin errores ni warnings |
 | `npm run test` | ✅ **194/194 pruebas en 25 archivos** |
 | `npm run build` | ✅ Build de producción generado; chunks `vendor`, `supabase` e `index` bajo 500 kB |
-| `npm run test:e2e` | ✅ **5/5** (venta, compra, devolución, respaldo y sincronización entre pestañas) |
+| `npm run test:e2e` | ✅ **7/7** (venta, compra, devolución, respaldo, sincronización y atajos) |
 | `npm run test:e2e:pwa` | ✅ **1/1** (manifest, service worker y recarga offline sobre el build) |
 | Supabase | ✅ Login admin, RLS anónimo, 7 vistas de analítica, sync manual/automática y descarga desde la nube |
 | Lighthouse | ✅ **100 accesibilidad / 100 best practices / 100 SEO** en Dashboard, Productos, Reportes, Configuración y Analítica |
@@ -352,15 +352,20 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 ## 9. Bitácora
 
 ### 2026-11-07 — Atajos de teclado y agilización
-- Nuevo `useHotkeys` + panel de ayuda `ShortcutsHelp` (F1) y navegación con `Alt + número`.
-- **Productos:** foco en el buscador, `F2`, `N` (nuevo), `Ctrl+Enter` (guardar) y
-  botón **Crear producto** cuando un código no está en el catálogo (rellena el código).
+- Nuevo `useHotkeys` + panel de ayuda `ShortcutsHelp` (F1), navegación `Alt + número` y
+  accesos directos `Alt + R/A/C`.
+- **Productos:** foco en el buscador, `F2`, `Alt + N` (nuevo), `Ctrl+Enter` (guardar) y
+  botón **Crear producto** cuando un código no está en el catálogo.
 - **Inventario:** foco en el buscador y `F2`.
-- **Compras:** campo de código de barras por línea (Enter selecciona el producto),
-  `N` (nueva compra) y `Ctrl+Enter` (guardar).
-- Plan completo en `UX_ATAJOS_PLAN.md`; pendiente decidir el flujo de “producto libre” en
-  compras.
-- Pruebas: **194/194 en 25 archivos**, **5/5 E2E** y **1/1 PWA**.
+- **Compras:** campo de código de barras por línea (Enter selecciona), alta rápida de
+  producto si no existe, `Alt + N` y `Ctrl+Enter`.
+- **Caja:** `Alt + N`/`Alt + C` para apertura/cierre y Enter para ejecutar.
+- **Gastos, Clientes, Proveedores:** `Alt + N`, `F2` donde aplica y `Ctrl+Enter`.
+- **Devoluciones:** `F2` y `Ctrl+Enter`.
+- **Reportes:** `F2` fechas y `Alt + E` exportar ventas.
+- **Configuración:** `Alt + B` respaldo y `Alt + S` sync.
+- Plan completo en `UX_ATAJOS_PLAN.md`.
+- Pruebas: **194/194 en 25 archivos**, **7/7 E2E** y **1/1 PWA**.
 
 ### 2026-11-06 — Fase 3 · Sprint 7 completado (datos y analítica)
 - Vistas SQL de analítica con `security_invoker`, ejecutadas y verificadas en Supabase.

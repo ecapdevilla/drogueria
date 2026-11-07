@@ -8,11 +8,12 @@ import { useAppStore } from '../store/useAppStore';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Select } from '../components/ui/Select';
+import { Checkbox } from '../components/ui/Checkbox';
 import { Modal } from '../components/ui/Modal';
 import { Table } from '../components/ui/Table';
 import { EmptyState } from '../components/ui/EmptyState';
 import { PageHeader } from '../components/layout/PageHeader';
-import { PurchaseInput, purchaseSchema } from '../domain/schemas';
+import { PurchaseInput, ProductInput, productSchema, purchaseSchema } from '../domain/schemas';
 import { Purchase } from '../types';
 import { cop } from '../utils/money';
 import { formatDate } from '../utils/date';
@@ -23,17 +24,29 @@ const emptyPurchase = (): PurchaseInput => ({
   items: [{ productId: '', quantity: 1, unitCost: 0, lotCode: '', expiryDate: '' }],
 });
 
+const EMPTY_QUICK_PRODUCT: ProductInput = {
+  internalCode: '',
+  barcode: '',
+  commercialName: '',
+  category: 'General',
+  purchasePrice: 0,
+  salePrice: 1,
+  minStock: 0,
+  active: true,
+};
+
 const asNumber = (value: unknown) => (value === '' || value === null ? 0 : Number(value));
 
 export default function Purchases() {
   const db = useAppStore(s => s.db);
   const addPurchase = useAppStore(s => s.addPurchase);
+  const addProduct = useAppStore(s => s.addProduct);
   const [open, setOpen] = useState(false);
 
   const {
     register,
     control,
-    handleSubmit,
+    handleSubmit: handleSubmitPurchase,
     reset,
     setValue,
     watch,
@@ -45,6 +58,19 @@ export default function Purchases() {
 
   const { fields, append, remove } = useFieldArray({ control, name: 'items' });
   const items = watch('items');
+
+  const [productOpen, setProductOpen] = useState(false);
+  const [creatingFor, setCreatingFor] = useState<number | null>(null);
+  const [productError, setProductError] = useState('');
+  const {
+    register: registerProduct,
+    handleSubmit: handleSubmitProduct,
+    reset: resetProduct,
+    formState: { errors: productErrors },
+  } = useForm<ProductInput>({
+    resolver: zodResolver(productSchema),
+    defaultValues: EMPTY_QUICK_PRODUCT,
+  });
   const total = (items ?? []).reduce(
     (sum, line) => sum + (Number(line?.quantity) || 0) * (Number(line?.unitCost) || 0),
     0,
@@ -74,9 +100,54 @@ export default function Purchases() {
     } else {
       setBarcodeNotes(notes => ({
         ...notes,
-        [index]: 'No encontrado. Créalo en Productos o usa el selector.',
+        [index]: 'No encontrado en el catálogo.',
       }));
     }
+  };
+
+  const openQuickCreate = (index: number, code: string) => {
+    const line = items?.[index];
+    const cost = Number(line?.unitCost) || 0;
+    setCreatingFor(index);
+    setProductError('');
+    resetProduct({
+      ...EMPTY_QUICK_PRODUCT,
+      barcode: code,
+      internalCode: /^\d+$/.test(code) ? code : '',
+      purchasePrice: cost,
+      salePrice: Math.max(1, Math.round(cost * 1.3)),
+    });
+    setProductOpen(true);
+  };
+
+  const onSubmitProduct = (values: ProductInput) => {
+    const before = new Set(useAppStore.getState().db.products.map(product => product.id));
+    addProduct(values);
+    const created = useAppStore.getState().db.products.find(product => !before.has(product.id));
+
+    if (!created) {
+      setProductError('No se pudo crear el producto. Revisa los datos e inténtalo de nuevo.');
+      return;
+    }
+
+    if (creatingFor !== null) {
+      const targetIndex = creatingFor;
+      setBarcodeNotes(notes => ({
+        ...notes,
+        [targetIndex]: `${created.commercialName} creado y seleccionado`,
+      }));
+      // Espera a que el nuevo producto esté en las opciones del selector.
+      window.setTimeout(() => {
+        setValue(`items.${targetIndex}.productId`, created.id);
+        if (values.purchasePrice > 0) {
+          setValue(`items.${targetIndex}.unitCost`, values.purchasePrice);
+        }
+      }, 50);
+    }
+
+    setProductOpen(false);
+    setCreatingFor(null);
+    setProductError('');
   };
 
   const openNew = () => {
@@ -97,16 +168,17 @@ export default function Purchases() {
   useHotkeys(
     [
       { key: 'n', handler: () => openNew() },
+      { key: 'n', alt: true, allowInInput: true, handler: () => openNew() },
       {
         key: 'Enter',
         ctrl: true,
         allowInInput: true,
         handler: () => {
-          if (open) void handleSubmit(onSubmit)();
+          if (open) void handleSubmitPurchase(onSubmit)();
         },
       },
     ],
-    [open, openNew, handleSubmit, onSubmit],
+    [open, openNew, handleSubmitPurchase, onSubmit],
   );
 
   const itemsError = errors.items as { message?: string; root?: { message?: string } } | undefined;
@@ -182,7 +254,12 @@ export default function Purchases() {
           </>
         }
       >
-        <form id="purchase-form" className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
+        <form
+          id="purchase-form"
+          className="space-y-5"
+          onSubmit={handleSubmitPurchase(onSubmit)}
+          noValidate
+        >
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Select
@@ -281,15 +358,26 @@ export default function Purchases() {
                       }}
                     />
                     {barcodeNotes[index] && (
-                      <p
-                        className={`mt-1 text-[11px] font-medium ${
-                          barcodeNotes[index].includes('No encontrado')
-                            ? 'text-amber-600'
-                            : 'text-emerald-600'
-                        }`}
-                      >
-                        {barcodeNotes[index]}
-                      </p>
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        <p
+                          className={`text-[11px] font-medium ${
+                            barcodeNotes[index].includes('No encontrado')
+                              ? 'text-amber-600'
+                              : 'text-emerald-600'
+                          }`}
+                        >
+                          {barcodeNotes[index]}
+                        </p>
+                        {barcodeNotes[index].includes('No encontrado') && (
+                          <button
+                            type="button"
+                            onClick={() => openQuickCreate(index, barcodeQueries[index] ?? '')}
+                            className="text-[11px] font-semibold text-brand-600 underline hover:text-brand-700"
+                          >
+                            Crear producto
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
                   <div className="sm:col-span-6">
@@ -365,6 +453,109 @@ export default function Purchases() {
             </span>
             <span className="font-display text-xl font-bold text-brand-900">{cop(total)}</span>
           </div>
+        </form>
+      </Modal>
+
+      <Modal
+        open={productOpen}
+        title="Crear producto para la compra"
+        onClose={() => {
+          setProductOpen(false);
+          setCreatingFor(null);
+          setProductError('');
+        }}
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setProductOpen(false);
+                setCreatingFor(null);
+                setProductError('');
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button type="submit" form="quick-product-form">
+              Crear y seleccionar
+            </Button>
+          </>
+        }
+      >
+        <form
+          id="quick-product-form"
+          className="space-y-4"
+          onSubmit={handleSubmitProduct(onSubmitProduct)}
+          noValidate
+        >
+          {productError && (
+            <p
+              role="alert"
+              className="rounded-xl bg-red-50 px-3 py-2 text-xs font-medium text-red-700"
+            >
+              {productError}
+            </p>
+          )}
+
+          <Input
+            label="Nombre comercial"
+            placeholder="Ej. Acetaminofén 500 mg"
+            error={productErrors.commercialName?.message}
+            {...registerProduct('commercialName')}
+          />
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Input
+              label="Código interno"
+              error={productErrors.internalCode?.message}
+              {...registerProduct('internalCode')}
+            />
+            <Input
+              label="Código de barras"
+              error={productErrors.barcode?.message}
+              {...registerProduct('barcode')}
+            />
+          </div>
+
+          <Input
+            label="Categoría"
+            error={productErrors.category?.message}
+            {...registerProduct('category')}
+          />
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Input
+              label="Costo (COP)"
+              type="number"
+              min={0}
+              step="1"
+              error={productErrors.purchasePrice?.message}
+              {...registerProduct('purchasePrice', { setValueAs: asNumber })}
+            />
+            <Input
+              label="Precio de venta (COP)"
+              type="number"
+              min={0}
+              step="1"
+              error={productErrors.salePrice?.message}
+              {...registerProduct('salePrice', { setValueAs: asNumber })}
+            />
+          </div>
+
+          <Input
+            label="Stock mínimo"
+            type="number"
+            min={0}
+            step="1"
+            error={productErrors.minStock?.message}
+            {...registerProduct('minStock', { setValueAs: asNumber })}
+          />
+
+          <Checkbox
+            label="Producto activo"
+            description="Los productos inactivos no aparecen en el punto de venta."
+            {...registerProduct('active')}
+          />
         </form>
       </Modal>
     </div>

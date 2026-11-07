@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { History, PackageCheck, RotateCcw } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { Table } from '../components/ui/Table';
@@ -12,6 +12,7 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { Return } from '../types';
 import { cop } from '../utils/money';
 import { formatDate } from '../utils/date';
+import { useHotkeys } from '../hooks/useHotkeys';
 
 export default function Returns() {
   const db = useAppStore(s => s.db);
@@ -19,6 +20,7 @@ export default function Returns() {
   const [selectedSale, setSelectedSale] = useState<string | null>(null);
   const [reason, setReason] = useState('');
   const [restock, setRestock] = useState(true);
+  const saleSelectRef = useRef<HTMLSelectElement>(null);
 
   const pendingSales = db.sales.filter(s => !s.returned);
   const sale = selectedSale ? db.sales.find(s => s.id === selectedSale) : undefined;
@@ -37,6 +39,25 @@ export default function Returns() {
     setSelectedSale(null);
     setReason('');
   };
+
+  useEffect(() => {
+    if (pendingSales.length) saleSelectRef.current?.focus();
+  }, [pendingSales.length]);
+
+  useHotkeys(
+    [
+      { key: 'F2', allowInInput: true, handler: () => saleSelectRef.current?.focus() },
+      {
+        key: 'Enter',
+        ctrl: true,
+        allowInInput: true,
+        handler: () => {
+          if (selectedSale && reason.trim()) handleProcess();
+        },
+      },
+    ],
+    [selectedSale, reason],
+  );
 
   return (
     <div className="space-y-6">
@@ -66,6 +87,7 @@ export default function Returns() {
           ) : (
             <div className="mt-4 space-y-4">
               <Select
+                ref={saleSelectRef}
                 label="Venta"
                 value={selectedSale ?? ''}
                 onChange={event => setSelectedSale(event.target.value || null)}

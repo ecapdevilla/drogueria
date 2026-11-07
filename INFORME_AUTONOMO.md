@@ -190,9 +190,8 @@ lo que ya funcionaba ni hacer operaciones destructivas o despliegues reales.
 - Inventario: autofoco y `F2`.
 - Compras: búsqueda por código de barras por línea, `N` y `Ctrl+Enter`.
 - Plan detallado en `UX_ATAJOS_PLAN.md`.
-- Pruebas: **194/194 en 25 archivos**, **5/5 E2E** y **1/1 PWA**.
-- Pendiente: decidir el flujo de “producto libre” en compras y extender atajos al resto de
-  módulos (Caja, Gastos, Devoluciones, Clientes, Proveedores, Reportes, Configuración).
+- Pruebas: **194/194 en 25 archivos**, **7/7 E2E** y **1/1 PWA**.
+- Pendiente: extender atajos al POS (F4/Escape) y personalización de teclas.
 
 ---
 
