@@ -13,9 +13,12 @@
 2. Importa el repositorio.
 3. Vercel detecta **Vite** automáticamente.
 4. Verifica:
+   - Framework Preset: **Vite**
    - Build Command: `npm run build`
    - Output Directory: `dist`
    - Install Command: `npm install`
+   - Node.js Version: **20** (el repo incluye `.nvmrc`)
+   - Production Branch: **`fase-3-supabase`** (rama por defecto del repo).
 
 `vercel.json` ya configura:
 - Rewrites de SPA para que rutas como `/analitica` funcionen al recargar.
