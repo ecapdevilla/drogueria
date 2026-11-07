@@ -15,7 +15,7 @@ const COLORS = {
 };
 
 const ICON_COLORS = {
-  success: 'text-emerald-600',
+  success: 'text-emerald-700',
   error: 'text-red-600',
   info: 'text-brand-600',
 };

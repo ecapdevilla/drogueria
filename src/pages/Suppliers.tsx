@@ -216,7 +216,7 @@ export default function Suppliers() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                        className="text-emerald-700 hover:bg-emerald-50 hover:text-emerald-700"
                         onClick={() => setSupplierActive(supplier.id, true)}
                         aria-label={`Activar ${supplier.name}`}
                       >

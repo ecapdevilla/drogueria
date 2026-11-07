@@ -11,7 +11,7 @@ interface KPIProps {
 
 const TONES = {
   brand: 'bg-brand-50 text-brand-600',
-  emerald: 'bg-emerald-50 text-emerald-600',
+  emerald: 'bg-emerald-50 text-emerald-700',
   rose: 'bg-rose-50 text-rose-600',
   amber: 'bg-amber-50 text-amber-600',
   slate: 'bg-slate-100 text-slate-600',
@@ -45,7 +45,7 @@ export function KPI({ label, value, change, icon, tone = 'brand', hint }: KPIPro
           {change >= 0 ? '▲' : '▼'} {Math.abs(change)}%
         </div>
       ) : (
-        hint && <p className="mt-3 text-xs text-slate-400">{hint}</p>
+        hint && <p className="mt-3 text-xs text-slate-500">{hint}</p>
       )}
     </div>
   );

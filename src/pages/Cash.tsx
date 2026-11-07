@@ -301,7 +301,7 @@ export default function Cash() {
                   render: row => (
                     <span
                       className={`font-semibold ${
-                        row.net >= 0 ? 'text-emerald-600' : 'text-red-600'
+                        row.net >= 0 ? 'text-emerald-700' : 'text-red-600'
                       }`}
                     >
                       {cop(row.net)}
@@ -380,7 +380,7 @@ export default function Cash() {
                   const positive = s.difference >= 0;
                   return (
                     <span
-                      className={`font-semibold ${positive ? 'text-emerald-600' : 'text-red-600'}`}
+                      className={`font-semibold ${positive ? 'text-emerald-700' : 'text-red-600'}`}
                     >
                       {positive ? '+' : ''}
                       {cop(s.difference)}

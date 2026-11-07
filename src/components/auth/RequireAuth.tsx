@@ -10,7 +10,7 @@ function AccessMessage({ title, message }: { title: string; message: string }) {
   const logout = useAuthStore(s => s.logout);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+    <main className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
       <div className="card w-full max-w-md p-6 text-center">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
           <ShieldAlert className="h-6 w-6" />
@@ -22,7 +22,7 @@ function AccessMessage({ title, message }: { title: string; message: string }) {
           Cerrar sesión
         </Button>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -41,9 +41,9 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
   if (!initialized || loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 text-sm text-slate-500">
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 text-sm text-slate-500">
         Cargando sesión…
-      </div>
+      </main>
     );
   }
 

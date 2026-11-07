@@ -167,7 +167,7 @@ export default function Reports() {
             La fecha inicial no puede ser posterior a la fecha final.
           </p>
         ) : (
-          <p className="mt-2 text-xs text-slate-400">Mostrando {rangeLabel}.</p>
+          <p className="mt-2 text-xs text-slate-500">Mostrando {rangeLabel}.</p>
         )}
       </section>
 
@@ -276,7 +276,7 @@ export default function Reports() {
               El descuento global se reparte entre las líneas de cada venta.
             </p>
           </div>
-          <BarChart3 className="h-4 w-4 text-slate-400" />
+          <BarChart3 className="h-4 w-4 text-slate-500" />
         </div>
         {productRows.length === 0 ? (
           <EmptyState title="Sin ventas" description="No hay productos vendidos en el periodo." />
@@ -300,7 +300,7 @@ export default function Reports() {
                 render: row => (
                   <span
                     className={`font-semibold ${
-                      row.profit >= 0 ? 'text-emerald-600' : 'text-red-600'
+                      row.profit >= 0 ? 'text-emerald-700' : 'text-red-600'
                     }`}
                   >
                     {cop(row.profit)}
@@ -311,7 +311,7 @@ export default function Reports() {
           />
         )}
         {report.productPerformance.length > productRows.length && (
-          <p className="border-t border-slate-100 px-4 py-2 text-xs text-slate-400">
+          <p className="border-t border-slate-100 px-4 py-2 text-xs text-slate-500">
             Mostrando los 10 productos con mayor utilidad de {report.productPerformance.length}.
             Exporta el CSV para ver todos.
           </p>
@@ -342,7 +342,7 @@ export default function Reports() {
                   render: row => (
                     <span
                       className={`font-semibold ${
-                        row.profit >= 0 ? 'text-emerald-600' : 'text-red-600'
+                        row.profit >= 0 ? 'text-emerald-700' : 'text-red-600'
                       }`}
                     >
                       {cop(row.profit)}

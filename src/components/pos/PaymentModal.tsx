@@ -156,7 +156,7 @@ export function PaymentModal({ open, total, onClose, onConfirm }: PaymentModalPr
           </Button>
           <p
             className={`text-sm font-semibold ${
-              pending === 0 ? 'text-emerald-600' : 'text-amber-700'
+              pending === 0 ? 'text-emerald-700' : 'text-amber-700'
             }`}
           >
             {pending === 0 ? 'Pago completo' : `Pendiente: ${cop(pending)}`}

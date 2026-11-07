@@ -61,6 +61,7 @@ lo que ya funcionaba ni hacer operaciones destructivas o despliegues reales.
   - Exportaciones CSV de ventas, productos, categorías, pagos, clientes e inventario.
   - Fecha de última sincronización.
 - Se probó la exportación CSV y el archivo generado.
+- Exportadores extraídos a `analytics.service.ts` y cubiertos con pruebas unitarias.
 
 ### Calidad, accesibilidad y rendimiento
 
@@ -90,7 +91,11 @@ lo que ya funcionaba ni hacer operaciones destructivas o despliegues reales.
 - `HANDOFF.md` actualizado con Sprint 7, decisiones y pendientes.
 - `AGENTS.md` actualizado con reglas de sincronización, analítica y despliegue.
 - `supabase/README.md` actualizado con la migración `003` y el flujo del Sprint 7.
+- `SPRINT_8_PLAN.md` con el diseño de RPCs, cola offline, RLS y criterios de aceptación.
+- `README.md` con instalación y resumen de despliegue.
 - Este `INFORME_AUTONOMO.md`.
+- También se corrigió el landmark `main` en login/carga y los contrastes de KPI, Dashboard,
+  Reportes y Topbar; Lighthouse quedó en 100 en las cinco pantallas auditadas.
 
 ---
 
@@ -100,12 +105,15 @@ lo que ya funcionaba ni hacer operaciones destructivas o despliegues reales.
 | --- | --- |
 | `npm run typecheck` | ✅ Sin errores |
 | `npm run lint` | ✅ Sin errores |
-| `npm run test` | ✅ **186/186 en 23 archivos** |
+| `npm run test` | ✅ **190/190 en 24 archivos** |
 | `npm run build` | ✅ Build correcto, sin warning de chunk > 500 kB |
 | `npm run test:e2e` | ✅ **5/5** |
 | `npm run test:e2e:pwa` | ✅ **1/1** |
 | Lighthouse Configuración | ✅ 100 / 100 / 100 |
 | Lighthouse Analítica | ✅ 100 / 100 / 100 |
+| Lighthouse Dashboard | ✅ 100 / 100 / 100 |
+| Lighthouse Productos | ✅ 100 / 100 / 100 |
+| Lighthouse Reportes | ✅ 100 / 100 / 100 |
 | Smoke test Supabase | ✅ Login, RLS, sync, vistas, analítica y descarga |
 
 ---

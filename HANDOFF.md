@@ -39,12 +39,12 @@ Zod 4 · React Hook Form 7 · Vitest 2 + Testing Library.
 | --- | --- |
 | `npm run typecheck` | ✅ Sin errores |
 | `npm run lint` | ✅ Sin errores ni warnings |
-| `npm run test` | ✅ **186/186 pruebas en 23 archivos** |
+| `npm run test` | ✅ **190/190 pruebas en 24 archivos** |
 | `npm run build` | ✅ Build de producción generado; chunks `vendor`, `supabase` e `index` bajo 500 kB |
 | `npm run test:e2e` | ✅ **5/5** (venta, compra, devolución, respaldo y sincronización entre pestañas) |
 | `npm run test:e2e:pwa` | ✅ **1/1** (manifest, service worker y recarga offline sobre el build) |
 | Supabase | ✅ Login admin, RLS anónimo, 7 vistas de analítica, sync manual/automática y descarga desde la nube |
-| Lighthouse | ✅ **100 accesibilidad / 100 best practices / 100 SEO** en Configuración y Analítica |
+| Lighthouse | ✅ **100 accesibilidad / 100 best practices / 100 SEO** en Dashboard, Productos, Reportes, Configuración y Analítica |
 | Smoke test Supabase | ✅ Datos demo, 2 ventas sincronizadas, `v_sales_daily` con $3.000, utilidad $1.400, analítica y CSV |
 | Smoke test navegador | ✅ Respaldo descargado, migración v1→v2, demo restaurada y CSV de analítica |
 
@@ -297,7 +297,7 @@ Los cinco sprints de la Fase 2 (Track A, sin backend) están cerrados.
   utilidad por producto/categoría, medios de pago, mejores clientes y riesgo de inventario.
 - [x] Exportaciones CSV de analítica y botón **Sincronizar ahora**.
 - [x] Smoke test real: 2 ventas, $3.000, utilidad $1.400 y pagos en efectivo.
-- [x] Lighthouse 100/100/100 en Configuración y Analítica.
+- [x] Lighthouse 100/100/100 en Dashboard, Productos, Reportes, Configuración y Analítica.
 - [x] Configuración de Vercel (`vercel.json`, `.vercelignore`, `DEPLOY_VERCEL.md`).
 - [ ] Probar RLS de `cashier` e `inventory` (requiere crear esos usuarios).
 - [ ] Conectar las escrituras operativas directamente a Supabase (Sprint 8).
@@ -305,6 +305,7 @@ Los cinco sprints de la Fase 2 (Track A, sin backend) están cerrados.
 ### Sprint 8 — Operación multiusuario real
 
 Objetivo: dejar de depender del espejo de base completa y escribir directo en Supabase.
+El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 
 - RPC transaccional `create_sale` (FEFO, stock, pagos, movimientos y numeración).
 - RPC `create_purchase`, `adjust_lot` y `process_return`.
@@ -362,7 +363,8 @@ Objetivo: dejar de depender del espejo de base completa y escribir directo en Su
 - Lighthouse: **100 accesibilidad / 100 best practices / 100 SEO** en Configuración y Analítica.
 - Bundle dividido en `vendor`, `supabase` e `index`; sin warning de 500 kB.
 - Vercel listo: `vercel.json`, `.vercelignore`, `README.md`, `DEPLOY_VERCEL.md`.
-- Pruebas: **186/186 en 23 archivos**, **5/5 E2E** y **1/1 PWA**.
+- Pruebas: **190/190 en 24 archivos**, **5/5 E2E** y **1/1 PWA**.
+- Plan técnico del Sprint 8 en `SPRINT_8_PLAN.md`.
 - Pendiente: usuarios `cashier`/`inventory` y escrituras operativas directas (Sprint 8).
 - Commit local `1167b1c` en la rama `fase-3-supabase`; sin push.
 

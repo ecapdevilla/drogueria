@@ -1,4 +1,6 @@
 import { supabase } from '../lib/supabase';
+import { toCSV } from '../utils/csv';
+import { paymentLabel } from '../utils/payments';
 
 export interface SalesDailyRow {
   store_id: string;
@@ -74,6 +76,79 @@ export interface AnalyticsFilters {
   storeId: string;
   from?: string;
   to?: string;
+}
+
+export function salesDailyToCSV(rows: SalesDailyRow[]): string {
+  return toCSV(
+    rows.map(row => ({
+      dia: row.day,
+      ventas: row.sales_count,
+      ventas_totales: row.total_sales,
+      ticket_promedio: row.average_ticket,
+      utilidad: row.gross_profit,
+    })),
+  );
+}
+
+export function productPerformanceToCSV(rows: ProductPerformanceRow[]): string {
+  return toCSV(
+    rows.map(row => ({
+      producto: row.product_name,
+      categoria: row.category,
+      unidades: row.quantity,
+      ingresos: row.revenue,
+      costo: row.cost,
+      utilidad: row.profit,
+    })),
+  );
+}
+
+export function categoryPerformanceToCSV(rows: CategoryPerformanceRow[]): string {
+  return toCSV(
+    rows.map(row => ({
+      categoria: row.category,
+      unidades: row.quantity,
+      ingresos: row.revenue,
+      costo: row.cost,
+      utilidad: row.profit,
+    })),
+  );
+}
+
+export function paymentMixToCSV(rows: PaymentMixRow[]): string {
+  return toCSV(
+    rows.map(row => ({
+      metodo: paymentLabel(row.method),
+      ventas: row.sales_count,
+      total: row.total,
+    })),
+  );
+}
+
+export function customerSummaryToCSV(rows: CustomerSummaryRow[]): string {
+  return toCSV(
+    rows.map(row => ({
+      cliente: row.name,
+      telefono: row.phone ?? '',
+      compras: row.sales_count,
+      total: row.total_spent,
+      ultima_compra: row.last_purchase_at ?? '',
+    })),
+  );
+}
+
+export function inventoryRiskToCSV(rows: InventoryRiskRow[]): string {
+  return toCSV(
+    rows.map(row => ({
+      producto: row.commercial_name,
+      categoria: row.category,
+      stock: row.stock,
+      minimo: row.min_stock,
+      proximos_30_dias: row.expiring_30d,
+      vencidos: row.expired_units,
+      proximo_vencimiento: row.next_expiry ?? '',
+    })),
+  );
 }
 
 function requireClient() {

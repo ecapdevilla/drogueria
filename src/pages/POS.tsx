@@ -444,7 +444,7 @@ export default function POS() {
 
                         <div className="mt-2 flex items-center justify-between border-t border-slate-100 pt-2">
                           {lineDiscount > 0 ? (
-                            <span className="text-[11px] font-medium text-emerald-600">
+                            <span className="text-[11px] font-medium text-emerald-700">
                               Ahorro {cop(lineDiscount)}
                             </span>
                           ) : (
@@ -494,13 +494,13 @@ export default function POS() {
                       <span>{cop(subtotal)}</span>
                     </div>
                     {lineDiscounts > 0 && (
-                      <div className="flex justify-between text-sm text-emerald-600">
+                      <div className="flex justify-between text-sm text-emerald-700">
                         <span>Descuento por líneas</span>
                         <span>-{cop(lineDiscounts)}</span>
                       </div>
                     )}
                     {globalDiscountApplied > 0 && (
-                      <div className="flex justify-between text-sm text-emerald-600">
+                      <div className="flex justify-between text-sm text-emerald-700">
                         <span>Descuento global</span>
                         <span>-{cop(globalDiscountApplied)}</span>
                       </div>

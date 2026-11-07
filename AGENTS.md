@@ -134,6 +134,7 @@ Si tocaste UI o flujos, haz además un smoke test en navegador
 | `src/services/analytics.service.ts` · `src/pages/Analytics.tsx` | Consultas y pantalla de analítica |
 | `vercel.json` · `DEPLOY_VERCEL.md` | Configuración y guía de despliegue |
 | `README.md` · `INFORME_AUTONOMO.md` | Entrada al proyecto e informe de la sesión autónoma |
+| `SPRINT_8_PLAN.md` | Diseño de RPCs, cola offline y RLS multiusuario |
 | `public/manifest.webmanifest` · `public/sw.js` | PWA, iconos y caché offline |
 | `src/services/` | Lógica de negocio pura (testeable) |
 | `src/services/inventory.service.ts` | FEFO, vencimientos y ajustes trazables |

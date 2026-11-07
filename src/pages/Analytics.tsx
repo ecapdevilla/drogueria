@@ -24,8 +24,17 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { cop } from '../utils/money';
 import { formatDate, formatDateOnly } from '../utils/date';
 import { paymentLabel } from '../utils/payments';
-import { downloadCSV, toCSV } from '../utils/csv';
-import { AnalyticsData, fetchAnalytics } from '../services/analytics.service';
+import { downloadCSV } from '../utils/csv';
+import {
+  AnalyticsData,
+  categoryPerformanceToCSV,
+  customerSummaryToCSV,
+  fetchAnalytics,
+  inventoryRiskToCSV,
+  paymentMixToCSV,
+  productPerformanceToCSV,
+  salesDailyToCSV,
+} from '../services/analytics.service';
 import { syncLocalDataToCloud } from '../services/cloud-migration.service';
 import { CLOUD_SYNC_STORAGE_KEY } from '../services/cloud-sync.service';
 
@@ -137,94 +146,33 @@ export default function Analytics() {
 
   const suffix = from || to ? `${from || 'inicio'}_${to || 'hoy'}` : 'historico';
   const exportSales = () => {
-    downloadCSV(
-      `analitica-ventas-${suffix}.csv`,
-      toCSV(
-        data.salesDaily.map(row => ({
-          dia: row.day,
-          ventas: row.sales_count,
-          ventas_totales: row.total_sales,
-          ticket_promedio: row.average_ticket,
-          utilidad: row.gross_profit,
-        })),
-      ),
-    );
+    downloadCSV(`analitica-ventas-${suffix}.csv`, salesDailyToCSV(data.salesDaily));
   };
 
   const exportProducts = () => {
     downloadCSV(
       `analitica-productos-${suffix}.csv`,
-      toCSV(
-        data.productPerformance.map(row => ({
-          producto: row.product_name,
-          categoria: row.category,
-          unidades: row.quantity,
-          ingresos: row.revenue,
-          costo: row.cost,
-          utilidad: row.profit,
-        })),
-      ),
+      productPerformanceToCSV(data.productPerformance),
     );
   };
 
   const exportCategories = () => {
     downloadCSV(
       `analitica-categorias-${suffix}.csv`,
-      toCSV(
-        data.categoryPerformance.map(row => ({
-          categoria: row.category,
-          unidades: row.quantity,
-          ingresos: row.revenue,
-          costo: row.cost,
-          utilidad: row.profit,
-        })),
-      ),
+      categoryPerformanceToCSV(data.categoryPerformance),
     );
   };
 
   const exportPayments = () => {
-    downloadCSV(
-      `analitica-pagos-${suffix}.csv`,
-      toCSV(
-        data.paymentMix.map(row => ({
-          metodo: paymentLabel(row.method),
-          ventas: row.sales_count,
-          total: row.total,
-        })),
-      ),
-    );
+    downloadCSV(`analitica-pagos-${suffix}.csv`, paymentMixToCSV(data.paymentMix));
   };
 
   const exportCustomers = () => {
-    downloadCSV(
-      `analitica-clientes-${suffix}.csv`,
-      toCSV(
-        data.customerSummary.map(row => ({
-          cliente: row.name,
-          telefono: row.phone ?? '',
-          compras: row.sales_count,
-          total: row.total_spent,
-          ultima_compra: row.last_purchase_at ?? '',
-        })),
-      ),
-    );
+    downloadCSV(`analitica-clientes-${suffix}.csv`, customerSummaryToCSV(data.customerSummary));
   };
 
   const exportInventory = () => {
-    downloadCSV(
-      `analitica-inventario-${suffix}.csv`,
-      toCSV(
-        data.inventoryRisk.map(row => ({
-          producto: row.commercial_name,
-          categoria: row.category,
-          stock: row.stock,
-          minimo: row.min_stock,
-          proximos_30_dias: row.expiring_30d,
-          vencidos: row.expired_units,
-          proximo_vencimiento: row.next_expiry ?? '',
-        })),
-      ),
-    );
+    downloadCSV(`analitica-inventario-${suffix}.csv`, inventoryRiskToCSV(data.inventoryRisk));
   };
 
   if (!profile?.store_id) {
@@ -344,7 +292,7 @@ export default function Analytics() {
               className={
                 syncMessage.startsWith('No se') || syncMessage.includes('error')
                   ? 'text-red-600'
-                  : 'text-emerald-600'
+                  : 'text-emerald-700'
               }
             >
               {syncMessage}
@@ -449,7 +397,7 @@ export default function Analytics() {
                 render: row => (
                   <span
                     className={`font-semibold ${
-                      Number(row.gross_profit) >= 0 ? 'text-emerald-600' : 'text-red-600'
+                      Number(row.gross_profit) >= 0 ? 'text-emerald-700' : 'text-red-600'
                     }`}
                   >
                     {cop(row.gross_profit)}
@@ -489,7 +437,7 @@ export default function Analytics() {
                   render: row => (
                     <span
                       className={`font-semibold ${
-                        Number(row.profit) >= 0 ? 'text-emerald-600' : 'text-red-600'
+                        Number(row.profit) >= 0 ? 'text-emerald-700' : 'text-red-600'
                       }`}
                     >
                       {cop(row.profit)}
@@ -521,7 +469,7 @@ export default function Analytics() {
                   render: row => (
                     <span
                       className={`font-semibold ${
-                        Number(row.profit) >= 0 ? 'text-emerald-600' : 'text-red-600'
+                        Number(row.profit) >= 0 ? 'text-emerald-700' : 'text-red-600'
                       }`}
                     >
                       {cop(row.profit)}

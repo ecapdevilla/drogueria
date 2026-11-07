@@ -36,7 +36,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-brand-950 p-4">
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-brand-950 p-4">
       <div className="w-full max-w-md">
         <div className="mb-6 text-center text-white">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 shadow-glow">
@@ -98,6 +98,6 @@ export default function Login() {
           Acceso restringido al personal autorizado.
         </p>
       </div>
-    </div>
+    </main>
   );
 }
