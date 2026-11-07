@@ -58,9 +58,15 @@ VITE_SUPABASE_URL=https://uprtvwsmxtrdjnwimiux.supabase.co
 VITE_SUPABASE_ANON_KEY=tu-anon-public-key
 VITE_AUTH_ENABLED=true
 VITE_CLOUD_AUTO_SYNC=true
+# Opcional, solo cuando se quiera operar en la nube:
+# VITE_DATA_MODE=cloud
 ```
 
 No agregues `service_role`, contraseñas de base de datos ni tokens privados.
+
+Por defecto `VITE_DATA_MODE` no se define y la app funciona en modo local. Para operar
+directamente en Supabase, agrega `VITE_DATA_MODE=cloud` solo después de ejecutar las
+migraciones `202611070001` y `202611070002` y probar cada flujo.
 
 ## 3. Configurar Supabase Auth
 

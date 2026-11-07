@@ -142,6 +142,7 @@ Si tocaste UI o flujos, haz además un smoke test en navegador
 | `src/services/cloud-migration.service.ts` | Subir/descargar datos entre local y Supabase |
 | `src/services/cloud-sync.service.ts` | Espejo automático para administradores |
 | `src/services/cloud-write.service.ts` | RPC y escrituras directas del Sprint 8 |
+| `src/services/offline-queue.service.ts` | Cola offline de ventas y sincronización |
 | `supabase/migrations/202611070001_create_sale_rpc.sql` | Venta transaccional en Supabase |
 | `supabase/migrations/202611070002_operations_rpc.sql` | Compras, ajustes, devoluciones y caja |
 | `src/services/analytics.service.ts` · `src/pages/Analytics.tsx` | Consultas y pantalla de analítica |

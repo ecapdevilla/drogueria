@@ -330,7 +330,7 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
   - Stock 115 → 114, lote FEFO asignado, pago/efectivo/vueltas correctos.
   - Venta, detalle, pagos y movimiento visibles tras recargar.
 
-**Bloque 2 — Resto de operaciones (implementado; falta ejecutar la migración):**
+**Bloque 2 — Resto de operaciones (implementado y verificado):**
 
 - [x] Migración `202611070002_operations_rpc.sql` con:
   - `create_purchase` (lote, costo, stock, movimiento `PURCHASE`, idempotencia).
@@ -419,9 +419,9 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 - Verificado: venta real en Supabase (RPC 200, stock 115 → 114, FEFO, pagos y vueltas)
   y edición de producto persistida tras recargar.
 - Pruebas: **204/204 en 27 archivos**, typecheck, lint y build correctos.
-- Pendiente: ejecutar la migración `202611070002` y probar compra, ajuste, devolución y caja.
-- **Verificado:** migración ejecutada; `create_purchase` 200, `adjust_lot` 204, `process_return` 200,
-  `open_cash`/`close_cash` 200 (diferencia 0).
+- Ejecutada y verificada la migración `202611070002`:
+  - `create_purchase` 200, `adjust_lot` 204, `process_return` 200,
+  - `open_cash`/`close_cash` 200 (diferencia 0).
 
 ### 2026-11-07 — Fase 3 · Sprint 8 (bloque 1: venta transaccional)
 - Nueva migración `202611070001_create_sale_rpc.sql`:

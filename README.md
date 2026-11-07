@@ -90,9 +90,10 @@ La guía está en [`DEPLOY_VERCEL.md`](./DEPLOY_VERCEL.md). Resumen:
 ## Estado actual
 
 - Fase 0, Fase 1 y Fase 2 completas.
-- Fase 3 en curso: Sprint 6 completo (auth/roles/RLS) y Sprint 7 en curso
-  (datos, analítica y sincronización).
+- Fase 3: Sprint 6 (auth/roles/RLS), Sprint 7 (datos, analítica y sincronización) y Sprint 8
+  (operación multiusuario: RPCs transaccionales, escrituras directas y cola offline) completos
+  y verificados contra Supabase.
 - **Desplegado en Vercel:** https://drogueria-ten.vercel.app
-- **Listo para UAT controlada con un administrador.** Para varios empleados falta el Sprint 8
-  (escrituras directas a Supabase y sincronización por rol).
+- **Listo para UAT controlada con un administrador.** Para varios empleados en simultáneo
+  falta probar RLS con usuarios `cashier`/`inventory` y activar Realtime.
 - WhatsApp y pagos de Meta quedan fuera de alcance por ahora.
