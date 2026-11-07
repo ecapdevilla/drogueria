@@ -7,6 +7,15 @@
 - Proyecto Supabase configurado (ver `supabase/README.md`).
 - Variables de entorno listas.
 
+## Estado actual del repositorio
+
+- Repo: `https://github.com/ecapdevilla/drogueria`
+- Rama de producción: **`fase-3-supabase`** (rama por defecto en GitHub).
+- `master` también está sincronizado con el mismo commit.
+- Último commit de despliegue: `7065e5e`.
+- `.nvmrc` fija **Node 20**.
+- `vercel.json`, `.vercelignore`, manifest y service worker ya están en el repo.
+
 ## 1. Importar el proyecto
 
 1. Entra a Vercel → **Add New → Project**.
@@ -49,6 +58,23 @@ En Supabase → **Authentication → URL Configuration**:
 - En desarrollo agrega también `http://localhost:5173/**`.
 
 Si desactivas los registros públicos, crea los usuarios desde el panel de Supabase.
+
+## 3.1 Despliegue con Vercel CLI (opcional)
+
+Si prefieres hacerlo desde terminal:
+
+```powershell
+npx vercel login
+npx vercel link
+npx vercel env add VITE_SUPABASE_URL production
+npx vercel env add VITE_SUPABASE_ANON_KEY production
+npx vercel env add VITE_AUTH_ENABLED production
+npx vercel env add VITE_CLOUD_AUTO_SYNC production
+npx vercel --prod
+```
+
+Repite los `env add` para `preview` y `development` si quieres que las previews también
+tengan login y Supabase. La CLI debe estar autenticada; si no, usa el panel web.
 
 ## 4. Desplegar
 
