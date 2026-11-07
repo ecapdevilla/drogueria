@@ -47,6 +47,7 @@ export default function Products() {
     register,
     handleSubmit,
     reset,
+    setFocus,
     formState: { errors },
   } = useForm<ProductInput>({
     resolver: zodResolver(productSchema),
@@ -55,10 +56,16 @@ export default function Products() {
 
   const filtered = q ? searchProducts(q) : db.products;
 
+  /** Enfoca el nombre comercial en cuanto el modal termina de abrirse. */
+  const focusCommercialName = () => {
+    window.setTimeout(() => setFocus('commercialName'), 80);
+  };
+
   const openAdd = (defaults: Partial<ProductInput> = {}) => {
     setEditingId(null);
     reset({ ...EMPTY_PRODUCT, ...defaults });
     setOpen(true);
+    focusCommercialName();
   };
 
   const openEdit = (product: Product) => {
@@ -74,6 +81,7 @@ export default function Products() {
       active: product.active,
     });
     setOpen(true);
+    focusCommercialName();
   };
 
   const onSubmit = (values: ProductInput) => {
