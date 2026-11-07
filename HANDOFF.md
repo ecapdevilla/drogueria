@@ -335,6 +335,9 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 - [ ] Revisar `npm audit` y decidir si actualizar dependencias.
 - [x] Desplegar en Vercel con las variables de entorno.
 - [ ] Configurar Site URL y Redirect URLs en Supabase Auth para correos.
+- [ ] Compartir `UAT_GUIDE.md` y `UAT_FEEDBACK.md` con el usuario de pruebas.
+- [ ] Recoger retroalimentación y priorizar correcciones.
+- [ ] Sprint 8: escrituras directas a Supabase y RLS de `cashier`/`inventory`.
 - [ ] Decidir si se hace commit/push adicional (la rama ya tiene un commit).
 
 **Antes de empezar un sprint:** confirmar alcance con el usuario y anotarlo aquí.
@@ -355,6 +358,16 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 ---
 
 ## 9. Bitácora
+
+### 2026-11-07 — Listo para UAT controlada
+- Guía de pruebas creada en `UAT_GUIDE.md` (15 escenarios, datos demo, PWA, atajos y
+  limitaciones conocidas).
+- Plantilla de retroalimentación en `UAT_FEEDBACK.md`.
+- **Recomendación:** compartir ahora con **un usuario administrador** para UAT.
+- No compartir todavía con varios empleados: la sincronización automática es solo para
+  administradores; el multiusuario real es el Sprint 8.
+- Pendiente: Site URL/Redirect URLs en Supabase Auth, probar login real en producción y
+  recoger feedback.
 
 ### 2026-11-07 — Despliegue en Vercel
 - Proyecto Vercel **`estiben-capdevilla/drogueria`** creado y conectado a GitHub.

@@ -74,10 +74,20 @@ La guía está en [`DEPLOY_VERCEL.md`](./DEPLOY_VERCEL.md). Resumen:
 - Configura la URL de Vercel en Supabase Auth (Site URL y Redirect URLs).
 - `vercel.json` ya incluye rewrites de SPA y cabeceras para el service worker.
 
+## Documentación
+
+- [`UAT_GUIDE.md`](./UAT_GUIDE.md) — guía paso a paso para el usuario que va a probar.
+- [`UAT_FEEDBACK.md`](./UAT_FEEDBACK.md) — plantilla de retroalimentación.
+- [`DEPLOY_VERCEL.md`](./DEPLOY_VERCEL.md) — despliegue y verificación.
+- [`supabase/README.md`](./supabase/README.md) — base de datos, RLS y migraciones.
+- [`HANDOFF.md`](./HANDOFF.md) — estado y decisiones del proyecto.
+
 ## Estado actual
 
 - Fase 0, Fase 1 y Fase 2 completas.
 - Fase 3 en curso: Sprint 6 completo (auth/roles/RLS) y Sprint 7 en curso
   (datos, analítica y sincronización).
 - **Desplegado en Vercel:** https://drogueria-ten.vercel.app
+- **Listo para UAT controlada con un administrador.** Para varios empleados falta el Sprint 8
+  (escrituras directas a Supabase y sincronización por rol).
 - WhatsApp y pagos de Meta quedan fuera de alcance por ahora.
