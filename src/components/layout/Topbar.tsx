@@ -41,6 +41,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
 
   const activeSession = db.cashSessions.find(session => session.status === 'OPEN');
   const [pending, setPending] = useState(0);
+  const [online, setOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
   useEffect(() => {
     const refresh = () => setPending(pendingCount());
@@ -50,6 +51,17 @@ export function Topbar({ onMenuClick }: TopbarProps) {
     return () => {
       window.clearInterval(id);
       window.removeEventListener('storage', refresh);
+    };
+  }, []);
+
+  useEffect(() => {
+    const update = () => setOnline(navigator.onLine);
+    update();
+    window.addEventListener('online', update);
+    window.addEventListener('offline', update);
+    return () => {
+      window.removeEventListener('online', update);
+      window.removeEventListener('offline', update);
     };
   }, []);
   const [cashAction, setCashAction] = useState<'open' | 'close' | null>(null);
@@ -129,6 +141,13 @@ export function Topbar({ onMenuClick }: TopbarProps) {
               {activeSession ? 'Caja abierta' : 'Caja cerrada'}
             </span>
           </span>
+
+          {!online && (
+            <span className="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-200">
+              <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="hidden sm:inline">Sin conexión — modo offline</span>
+            </span>
+          )}
 
           {isCloudWriteEnabled && pending > 0 && (
             <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-200">
