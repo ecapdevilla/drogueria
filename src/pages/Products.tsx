@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useHotkeys } from '../hooks/useHotkeys';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertTriangle, Package, PackagePlus, Search } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
@@ -40,6 +41,7 @@ export default function Products() {
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<Product | null>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -53,9 +55,9 @@ export default function Products() {
 
   const filtered = q ? searchProducts(q) : db.products;
 
-  const openAdd = () => {
+  const openAdd = (defaults: Partial<ProductInput> = {}) => {
     setEditingId(null);
-    reset(EMPTY_PRODUCT);
+    reset({ ...EMPTY_PRODUCT, ...defaults });
     setOpen(true);
   };
 
@@ -80,6 +82,39 @@ export default function Products() {
     setOpen(false);
     reset(EMPTY_PRODUCT);
   };
+
+  const trimmedQuery = q.trim();
+  const isCode = /^\d{6,}$/.test(trimmedQuery);
+  const exactExists = db.products.some(
+    product =>
+      product.barcode === trimmedQuery ||
+      product.internalCode.toLowerCase() === trimmedQuery.toLowerCase(),
+  );
+  const showCreateFromSearch = Boolean(trimmedQuery && !exactExists);
+  const createFromSearch = () => {
+    if (isCode) openAdd({ barcode: trimmedQuery, internalCode: trimmedQuery });
+    else openAdd({ commercialName: trimmedQuery });
+  };
+
+  useEffect(() => {
+    searchRef.current?.focus();
+  }, []);
+
+  useHotkeys(
+    [
+      { key: 'F2', allowInInput: true, handler: () => searchRef.current?.focus() },
+      { key: 'n', handler: () => openAdd() },
+      {
+        key: 'Enter',
+        ctrl: true,
+        allowInInput: true,
+        handler: () => {
+          if (open) void handleSubmit(onSubmit)();
+        },
+      },
+    ],
+    [openAdd, open, handleSubmit, onSubmit],
+  );
 
   const columns = [
     { key: 'internalCode', header: 'Código' },
@@ -123,7 +158,7 @@ export default function Products() {
         title="Productos"
         subtitle={`${db.products.length} productos en catálogo`}
         actions={
-          <Button onClick={openAdd}>
+          <Button onClick={() => openAdd()}>
             <PackagePlus className="h-4 w-4" />
             Nuevo producto
           </Button>
@@ -145,6 +180,7 @@ export default function Products() {
           <div className="relative w-full sm:max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input
+              ref={searchRef}
               placeholder="Buscar por nombre, código o categoría..."
               value={q}
               onChange={event => setQ(event.target.value)}
@@ -157,12 +193,22 @@ export default function Products() {
           </p>
         </div>
 
+        {showCreateFromSearch && (
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 bg-brand-50/50 px-4 py-2.5">
+            <p className="text-xs text-slate-600">«{trimmedQuery}» no está en el catálogo.</p>
+            <Button variant="secondary" size="sm" onClick={createFromSearch}>
+              <PackagePlus className="h-3.5 w-3.5" />
+              Crear producto
+            </Button>
+          </div>
+        )}
+
         {filtered.length === 0 ? (
           <EmptyState
             icon={<Package className="h-7 w-7" />}
             title="Sin productos"
             description="Agrega tu primer producto para comenzar a vender."
-            action={<Button onClick={openAdd}>Agregar producto</Button>}
+            action={<Button onClick={() => openAdd()}>Agregar producto</Button>}
           />
         ) : (
           <DataTable

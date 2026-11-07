@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useHotkeys } from '../hooks/useHotkeys';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   AlertTriangle,
@@ -70,9 +71,16 @@ export default function Inventory() {
   const adjustLot = useAppStore(s => s.adjustLot);
 
   const [filter, setFilter] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
   const [target, setTarget] = useState<Lot | null>(null);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    searchRef.current?.focus();
+  }, []);
+
+  useHotkeys([{ key: 'F2', allowInInput: true, handler: () => searchRef.current?.focus() }]);
 
   const {
     register,
@@ -256,6 +264,7 @@ export default function Inventory() {
             <div className="relative w-full sm:max-w-sm">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input
+                ref={searchRef}
                 placeholder="Buscar por producto o lote..."
                 value={filter}
                 onChange={event => setFilter(event.target.value)}

@@ -91,6 +91,9 @@ y se persiste en `localStorage` bajo la clave `drogueria_db_v1`.
 31. **Vercel.** `vercel.json` contiene los rewrites SPA y las cabeceras de caché. No los
     elimines. El despliegue real lo hace el propietario de la cuenta; las variables de
     entorno van en Vercel, no en el repo.
+32. **Atajos.** Usa `useHotkeys` para atajos globales y `ShortcutsHelp` para documentarlos.
+    Las teclas de una letra se ignoran dentro de inputs salvo `allowInInput`; no registres
+    atajos que choquen con el POS (`F2`/`F3`) ni con el flujo de escritura.
 
 ## Antes de dar algo por terminado
 
@@ -135,6 +138,8 @@ Si tocaste UI o flujos, haz además un smoke test en navegador
 | `vercel.json` · `DEPLOY_VERCEL.md` | Configuración y guía de despliegue |
 | `README.md` · `INFORME_AUTONOMO.md` | Entrada al proyecto e informe de la sesión autónoma |
 | `SPRINT_8_PLAN.md` | Diseño de RPCs, cola offline y RLS multiusuario |
+| `UX_ATAJOS_PLAN.md` | Atajos de teclado y agilización por módulo |
+| `src/hooks/useHotkeys.ts` · `src/components/ShortcutsHelp.tsx` | Atajos globales y panel de ayuda |
 | `public/manifest.webmanifest` · `public/sw.js` | PWA, iconos y caché offline |
 | `src/services/` | Lógica de negocio pura (testeable) |
 | `src/services/inventory.service.ts` | FEFO, vencimientos y ajustes trazables |

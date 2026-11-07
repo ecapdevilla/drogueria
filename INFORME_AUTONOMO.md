@@ -183,6 +183,19 @@ lo que ya funcionaba ni hacer operaciones destructivas o despliegues reales.
 
 ---
 
+## 9. Anexo — Iteración de atajos (2026-11-07)
+
+- `useHotkeys` + panel `ShortcutsHelp` (F1) y navegación `Alt + 1…9/0`.
+- Productos: autofoco, `F2`, `N`, `Ctrl+Enter` y alta rápida desde búsqueda por código.
+- Inventario: autofoco y `F2`.
+- Compras: búsqueda por código de barras por línea, `N` y `Ctrl+Enter`.
+- Plan detallado en `UX_ATAJOS_PLAN.md`.
+- Pruebas: **194/194 en 25 archivos**, **5/5 E2E** y **1/1 PWA**.
+- Pendiente: decidir el flujo de “producto libre” en compras y extender atajos al resto de
+  módulos (Caja, Gastos, Devoluciones, Clientes, Proveedores, Reportes, Configuración).
+
+---
+
 ## 8. Comandos útiles
 
 ```powershell

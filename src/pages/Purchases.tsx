@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useHotkeys } from '../hooks/useHotkeys';
 import { Plus, ShoppingBag, Trash2, Truck } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { Button } from '../components/ui/Button';
@@ -34,6 +35,7 @@ export default function Purchases() {
     control,
     handleSubmit,
     reset,
+    setValue,
     watch,
     formState: { errors },
   } = useForm<PurchaseInput>({
@@ -52,8 +54,35 @@ export default function Purchases() {
     .filter(supplier => supplier.active !== false)
     .sort((a, b) => a.name.localeCompare(b.name, 'es'));
 
+  const [barcodeQueries, setBarcodeQueries] = useState<Record<number, string>>({});
+  const [barcodeNotes, setBarcodeNotes] = useState<Record<number, string>>({});
+
+  const findProductByCode = (code: string) => {
+    const term = code.trim();
+    if (!term) return undefined;
+    return db.products.find(
+      product =>
+        product.barcode === term || product.internalCode.toLowerCase() === term.toLowerCase(),
+    );
+  };
+
+  const applyBarcode = (index: number, code: string) => {
+    const product = findProductByCode(code);
+    if (product) {
+      setValue(`items.${index}.productId`, product.id);
+      setBarcodeNotes(notes => ({ ...notes, [index]: `${product.commercialName} encontrado` }));
+    } else {
+      setBarcodeNotes(notes => ({
+        ...notes,
+        [index]: 'No encontrado. Créalo en Productos o usa el selector.',
+      }));
+    }
+  };
+
   const openNew = () => {
     reset(emptyPurchase());
+    setBarcodeQueries({});
+    setBarcodeNotes({});
     setOpen(true);
   };
 
@@ -61,7 +90,24 @@ export default function Purchases() {
     addPurchase(values);
     setOpen(false);
     reset(emptyPurchase());
+    setBarcodeQueries({});
+    setBarcodeNotes({});
   };
+
+  useHotkeys(
+    [
+      { key: 'n', handler: () => openNew() },
+      {
+        key: 'Enter',
+        ctrl: true,
+        allowInInput: true,
+        handler: () => {
+          if (open) void handleSubmit(onSubmit)();
+        },
+      },
+    ],
+    [open, openNew, handleSubmit, onSubmit],
+  );
 
   const itemsError = errors.items as { message?: string; root?: { message?: string } } | undefined;
   const itemsMessage = itemsError?.root?.message ?? itemsError?.message;
@@ -219,6 +265,33 @@ export default function Purchases() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
+                  <div className="sm:col-span-6">
+                    <Input
+                      label="Código de barras"
+                      placeholder="Escanea o escribe y presiona Enter"
+                      value={barcodeQueries[index] ?? ''}
+                      onChange={event =>
+                        setBarcodeQueries(queries => ({ ...queries, [index]: event.target.value }))
+                      }
+                      onKeyDown={event => {
+                        if (event.key === 'Enter') {
+                          event.preventDefault();
+                          applyBarcode(index, barcodeQueries[index] ?? '');
+                        }
+                      }}
+                    />
+                    {barcodeNotes[index] && (
+                      <p
+                        className={`mt-1 text-[11px] font-medium ${
+                          barcodeNotes[index].includes('No encontrado')
+                            ? 'text-amber-600'
+                            : 'text-emerald-600'
+                        }`}
+                      >
+                        {barcodeNotes[index]}
+                      </p>
+                    )}
+                  </div>
                   <div className="sm:col-span-6">
                     <Select
                       label="Producto"

@@ -39,7 +39,7 @@ Zod 4 · React Hook Form 7 · Vitest 2 + Testing Library.
 | --- | --- |
 | `npm run typecheck` | ✅ Sin errores |
 | `npm run lint` | ✅ Sin errores ni warnings |
-| `npm run test` | ✅ **190/190 pruebas en 24 archivos** |
+| `npm run test` | ✅ **194/194 pruebas en 25 archivos** |
 | `npm run build` | ✅ Build de producción generado; chunks `vendor`, `supabase` e `index` bajo 500 kB |
 | `npm run test:e2e` | ✅ **5/5** (venta, compra, devolución, respaldo y sincronización entre pestañas) |
 | `npm run test:e2e:pwa` | ✅ **1/1** (manifest, service worker y recarga offline sobre el build) |
@@ -350,6 +350,17 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 ---
 
 ## 9. Bitácora
+
+### 2026-11-07 — Atajos de teclado y agilización
+- Nuevo `useHotkeys` + panel de ayuda `ShortcutsHelp` (F1) y navegación con `Alt + número`.
+- **Productos:** foco en el buscador, `F2`, `N` (nuevo), `Ctrl+Enter` (guardar) y
+  botón **Crear producto** cuando un código no está en el catálogo (rellena el código).
+- **Inventario:** foco en el buscador y `F2`.
+- **Compras:** campo de código de barras por línea (Enter selecciona el producto),
+  `N` (nueva compra) y `Ctrl+Enter` (guardar).
+- Plan completo en `UX_ATAJOS_PLAN.md`; pendiente decidir el flujo de “producto libre” en
+  compras.
+- Pruebas: **194/194 en 25 archivos**, **5/5 E2E** y **1/1 PWA**.
 
 ### 2026-11-06 — Fase 3 · Sprint 7 completado (datos y analítica)
 - Vistas SQL de analítica con `security_invoker`, ejecutadas y verificadas en Supabase.

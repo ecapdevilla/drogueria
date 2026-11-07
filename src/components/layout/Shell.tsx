@@ -1,10 +1,41 @@
 import React, { ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
+import { ShortcutsHelp } from '../ShortcutsHelp';
+import { useHotkeys } from '../../hooks/useHotkeys';
 import { ToastContainer } from '../ui/Toast';
+
+const MODULE_ROUTES: Record<string, string> = {
+  '1': '/',
+  '2': '/productos',
+  '3': '/inventario',
+  '4': '/pos',
+  '5': '/compras',
+  '6': '/proveedores',
+  '7': '/caja',
+  '8': '/gastos',
+  '9': '/devoluciones',
+  '0': '/clientes',
+};
 
 export function Shell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [helpOpen, setHelpOpen] = React.useState(false);
+  const navigate = useNavigate();
+
+  useHotkeys([
+    {
+      key: 'F1',
+      allowInInput: true,
+      handler: () => setHelpOpen(open => !open),
+    },
+    ...Object.entries(MODULE_ROUTES).map(([digit, path]) => ({
+      key: digit,
+      alt: true,
+      handler: () => navigate(path),
+    })),
+  ]);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -28,6 +59,8 @@ export function Shell({ children }: { children: ReactNode }) {
       </div>
 
       <ToastContainer />
+
+      <ShortcutsHelp open={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>
   );
 }
