@@ -36,20 +36,35 @@ export default function Login() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-brand-950 p-4">
-      <div className="w-full max-w-md">
-        <div className="mb-6 text-center text-white">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 shadow-glow">
-            <Pill className="h-7 w-7" />
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950 p-4">
+      {/* Fondo con degradado y malla sutil */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(99,102,241,0.25),_transparent_55%),radial-gradient(ellipse_at_bottom,_rgba(79,70,229,0.18),_transparent_60%)]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)',
+          backgroundSize: '44px 44px',
+        }}
+      />
+
+      <div className="relative w-full max-w-md">
+        <div className="mb-7 text-center text-white">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-400 via-brand-500 to-brand-700 shadow-glow ring-1 ring-white/20 transition-transform duration-300 hover:scale-105">
+            <Pill className="h-8 w-8 drop-shadow-sm" />
           </div>
-          <h1 className="mt-4 font-display text-2xl font-bold tracking-tight">Droguería</h1>
-          <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-slate-400">
+          <h1 className="mt-5 font-display text-3xl font-bold tracking-tight">Droguería</h1>
+          <p className="mt-1 text-xs font-medium uppercase tracking-[0.22em] text-slate-400">
             Gestión farmacéutica
           </p>
         </div>
 
         <form
-          className="card space-y-5 p-6"
+          className="rounded-2xl border border-white/10 bg-white/95 p-6 shadow-card backdrop-blur-xl space-y-5"
           onSubmit={handleSubmit(onSubmit)}
           noValidate
           aria-label="Iniciar sesión"
@@ -82,7 +97,7 @@ export default function Login() {
           {error && (
             <p
               role="alert"
-              className="rounded-xl bg-red-50 px-3 py-2 text-xs font-medium text-red-700"
+              className="rounded-xl bg-red-50 px-3 py-2 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-100"
             >
               {error}
             </p>
@@ -94,7 +109,7 @@ export default function Login() {
           </Button>
         </form>
 
-        <p className="mt-4 text-center text-xs text-slate-400">
+        <p className="mt-5 text-center text-xs text-slate-400">
           Acceso restringido al personal autorizado.
         </p>
       </div>

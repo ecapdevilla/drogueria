@@ -103,9 +103,9 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                 end={item.to === '/'}
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                  `group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? 'bg-white/10 text-white shadow-sm ring-1 ring-inset ring-white/10'
+                      ? 'bg-gradient-to-r from-brand-500/20 to-brand-600/10 text-white shadow-sm ring-1 ring-inset ring-brand-400/30'
                       : 'text-slate-400 hover:bg-white/5 hover:text-white'
                   }`
                 }

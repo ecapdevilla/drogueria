@@ -17,9 +17,21 @@ const TONES = {
   slate: 'bg-slate-100 text-slate-600',
 };
 
+const TONES_BAR = {
+  brand: 'from-brand-500 to-brand-300',
+  emerald: 'from-emerald-500 to-emerald-300',
+  rose: 'from-rose-500 to-rose-300',
+  amber: 'from-amber-500 to-amber-300',
+  slate: 'from-slate-400 to-slate-200',
+};
+
 export function KPI({ label, value, change, icon, tone = 'brand', hint }: KPIProps) {
   return (
-    <div className="card card-hover p-5">
+    <div className="card card-hover relative overflow-hidden p-5">
+      <span
+        aria-hidden="true"
+        className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${TONES_BAR[tone]}`}
+      />
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
