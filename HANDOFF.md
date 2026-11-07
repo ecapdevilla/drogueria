@@ -168,7 +168,9 @@ src/
 
 - Rama de trabajo: **`fase-3-supabase`**.
 - Commit base: **`1167b1c`** (`feat: fase 2 completa y base de fase 3 con Supabase`).
-- **Producción:** https://drogueria-ten.vercel.app (proyecto `estiben-capdevilla/drogueria`).
+- Último commit de despliegue: **`773046a`** (Node 26 y `npm ci`).
+- **Producción:** https://drogueria-ten.vercel.app (proyecto `estiben-capdevilla/drogueria`,
+  rama de producción Vercel: `master`, sincronizada con `fase-3-supabase`).
 - Fase 0, Fase 1, Fase 2 y el Sprint 6/7 de Fase 3 están **commiteados localmente** en esa rama.
 - `master` sigue en el commit inicial `6e0b964`; **no se hizo push**.
 - El directorio padre (`Downloads`) **no** es un repo; el repo está dentro del proyecto.
@@ -360,6 +362,8 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
   `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_AUTH_ENABLED=true`,
   `VITE_CLOUD_AUTO_SYNC=true`.
 - **Producción:** https://drogueria-ten.vercel.app
+- Vercel usa **Node 26** e **`npm ci`**; la rama de producción es `master` y está sincronizada
+  con `fase-3-supabase`.
 - Verificado con Playwright:
   - `/` redirige a `/login`.
   - `/analitica` también redirige a `/login` (rewrite + guard).
