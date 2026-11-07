@@ -395,6 +395,12 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 
 ## 9. Bitácora
 
+### 2026-11-07 — Manual de presentación para cliente
+- Creado `MANUAL_PRESENTACION.md`: guion paso a paso (13 módulos + FAQ + cierre) para
+  demostrar la app a una cliente, escrito en lenguaje simple.
+- Incluye credenciales demo, atajos, instalación PWA y respuestas a preguntas frecuentes.
+- Actualizada la documentación (README, AGENTS) para referenciar el manual.
+
 ### 2026-11-07 — Fase 3 · Sprint 8 (offline: cola de ventas)
 - Nuevo `src/services/offline-queue.service.ts`:
   - `isNetworkError`, `enqueueSale`, `listPending`, `pendingCount`, `drainQueue`.

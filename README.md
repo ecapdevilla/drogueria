@@ -85,6 +85,7 @@ La guía está en [`DEPLOY_VERCEL.md`](./DEPLOY_VERCEL.md). Resumen:
 - [`UAT_FEEDBACK.md`](./UAT_FEEDBACK.md) — plantilla de retroalimentación.
 - [`DEPLOY_VERCEL.md`](./DEPLOY_VERCEL.md) — despliegue y verificación.
 - [`supabase/README.md`](./supabase/README.md) — base de datos, RLS y migraciones.
+- [`MANUAL_PRESENTACION.md`](./MANUAL_PRESENTACION.md) — guion para demostrar la app a una cliente (paso a paso).
 - [`HANDOFF.md`](./HANDOFF.md) — estado y decisiones del proyecto.
 
 ## Estado actual
