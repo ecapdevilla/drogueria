@@ -5,7 +5,9 @@ export function toCSV(rows: Record<string, unknown>[]): string {
   return [headers.join(','), ...rows.map(r => headers.map(h => escape(r[h])).join(','))].join('\n');
 }
 export function downloadCSV(name: string, csv: string) {
-  const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = name; a.click();
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
 }

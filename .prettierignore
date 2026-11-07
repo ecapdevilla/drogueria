@@ -1,0 +1,10 @@
+dist
+node_modules
+coverage
+test-results
+playwright-report
+blob-report
+package-lock.json
+*.md
+deepseek_*.ts
+deepseek_*.tsx

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Inbox, Pencil, Trash2 } from 'lucide-react';
 
 interface Column<T> {
   key: string;
@@ -16,11 +17,16 @@ interface DataTableProps<T> {
 }
 
 export function DataTable<T extends Record<string, any>>({
-  data, columns, onRowAction, emptyMessage = 'Sin datos', loading = false,
+  data,
+  columns,
+  onRowAction,
+  emptyMessage = 'Sin datos',
+  loading = false,
 }: DataTableProps<T>) {
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12 text-slate-400 text-sm">
+      <div className="flex items-center justify-center gap-3 py-16 text-sm text-slate-400">
+        <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-200 border-t-brand-500" />
         Cargando...
       </div>
     );
@@ -28,9 +34,11 @@ export function DataTable<T extends Record<string, any>>({
 
   if (!data.length) {
     return (
-      <div className="text-center py-12">
-        <div className="text-slate-400 text-xl mb-2">📭</div>
-        <h3 className="font-semibold text-slate-600">{emptyMessage}</h3>
+      <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+          <Inbox className="h-7 w-7" />
+        </div>
+        <h3 className="mt-4 font-display text-base font-bold text-slate-800">{emptyMessage}</h3>
       </div>
     );
   }
@@ -41,53 +49,67 @@ export function DataTable<T extends Record<string, any>>({
   ];
 
   return (
-    <div className="overflow-x-auto border border-slate-200 rounded-xl shadow-sm bg-white">
-      <table className="min-w-full text-sm divide-y divide-slate-100">
-        <thead className="bg-slate-50 text-slate-600">
+    <div className="overflow-x-auto rounded-2xl border border-slate-200/70 bg-white shadow-soft">
+      <table className="min-w-full text-sm">
+        <thead className="bg-slate-50/80">
           <tr>
-            {allColumns.map(c => (
+            {allColumns.map(column => (
               <th
-                key={c.key}
-                className={`px-4 py-3 text-left font-medium ${c.className || ''}`}
+                key={column.key}
+                scope="col"
+                className={`px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500 ${
+                  column.className ?? ''
+                }`}
               >
-                {c.header}
+                {column.key === 'actions' ? (
+                  <span className="sr-only">Acciones</span>
+                ) : (
+                  column.header
+                )}
               </th>
             ))}
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
-          {data.map((row, i) => (
-            <tr key={i} className="hover:bg-slate-50 transition-colors">
-              {allColumns.map(c => {
-                if (c.key === 'actions') {
+          {data.map((row, index) => (
+            <tr
+              key={(row as { id?: string }).id ?? index}
+              className="transition-colors hover:bg-slate-50/80"
+            >
+              {allColumns.map(column => {
+                if (column.key === 'actions') {
                   return (
-                    <td key={c.key} className="px-4 py-3 text-center">
-                      <div className="flex items-center justify-center gap-2">
+                    <td key={column.key} className="px-4 py-3 text-center">
+                      <div className="flex items-center justify-center gap-1">
                         <button
+                          type="button"
                           onClick={() => onRowAction?.('edit', row)}
-                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="rounded-lg p-2 text-slate-400 transition hover:bg-brand-50 hover:text-brand-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60"
+                          aria-label="Editar"
                           title="Editar"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
+                          <Pencil className="h-4 w-4" />
                         </button>
                         <button
+                          type="button"
                           onClick={() => onRowAction?.('delete', row)}
-                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500/60"
+                          aria-label="Eliminar"
                           title="Eliminar"
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </td>
                   );
                 }
+
                 return (
-                  <td key={c.key} className={`px-4 py-3 text-slate-700 ${c.className || ''}`}>
-                    {c.render ? c.render(row) : row[c.key]}
+                  <td
+                    key={column.key}
+                    className={`whitespace-nowrap px-4 py-3 text-slate-600 ${column.className ?? ''}`}
+                  >
+                    {column.render ? column.render(row) : row[column.key]}
                   </td>
                 );
               })}

@@ -1,0 +1,62 @@
+import { DBShape } from '../types';
+import { isAuthEnabled } from '../lib/supabase';
+import { useAuthStore } from '../store/useAuthStore';
+import { syncLocalDataToCloud } from './cloud-migration.service';
+
+const AUTO_SYNC_DELAY = 1500;
+
+let timer: ReturnType<typeof setTimeout> | null = null;
+let pending: DBShape | null = null;
+let running = false;
+
+function currentContext() {
+  const profile = useAuthStore.getState().profile;
+  if (!profile?.organization_id || !profile.store_id) return null;
+  return {
+    organizationId: profile.organization_id,
+    storeId: profile.store_id,
+    userId: profile.id,
+  };
+}
+
+async function flush() {
+  if (running || !pending) return;
+
+  const context = currentContext();
+  if (!context) return;
+
+  const db = pending;
+  pending = null;
+  running = true;
+
+  try {
+    await syncLocalDataToCloud(db, context);
+    window.dispatchEvent(
+      new CustomEvent('drogueria:cloud-sync', {
+        detail: { ok: true, at: new Date().toISOString() },
+      }),
+    );
+  } catch (error) {
+    console.error('No se pudo sincronizar automáticamente con Supabase', error);
+    window.dispatchEvent(new CustomEvent('drogueria:cloud-sync', { detail: { ok: false } }));
+  } finally {
+    running = false;
+    if (pending) void flush();
+  }
+}
+
+/**
+ * Espeja la base local a Supabase después de cada cambio, con debounce.
+ * Es una sincronización de analítica/respaldo, no el flujo multiusuario definitivo.
+ */
+export function scheduleCloudSync(db: DBShape) {
+  if (!isAuthEnabled || import.meta.env.VITE_CLOUD_AUTO_SYNC === 'false') return;
+  if (useAuthStore.getState().profile?.role !== 'admin') return;
+
+  pending = db;
+  if (timer) clearTimeout(timer);
+  timer = setTimeout(() => {
+    timer = null;
+    void flush();
+  }, AUTO_SYNC_DELAY);
+}

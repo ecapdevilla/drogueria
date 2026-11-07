@@ -1,24 +1,51 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 interface KPIProps {
   label: string;
   value: string | number;
   change?: number;
-  icon?: string;
+  icon?: ReactNode;
+  tone?: 'brand' | 'emerald' | 'rose' | 'amber' | 'slate';
+  hint?: string;
 }
 
-export function KPI({ label, value, change, icon = '📊' }: KPIProps) {
+const TONES = {
+  brand: 'bg-brand-50 text-brand-600',
+  emerald: 'bg-emerald-50 text-emerald-600',
+  rose: 'bg-rose-50 text-rose-600',
+  amber: 'bg-amber-50 text-amber-600',
+  slate: 'bg-slate-100 text-slate-600',
+};
+
+export function KPI({ label, value, change, icon, tone = 'brand', hint }: KPIProps) {
   return (
-    <div className="bg-white rounded-lg shadow p-4 border border-slate-200">
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-slate-500 uppercase tracking-wide">{label}</span>
-        <span className="text-xl">{icon}</span>
+    <div className="card card-hover p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+            {label}
+          </p>
+          <p className="mt-2 truncate font-display text-[1.35rem] font-bold tracking-tight text-slate-900">
+            {value}
+          </p>
+        </div>
+        <div
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${TONES[tone]}`}
+        >
+          {icon ?? <span className="text-lg">📊</span>}
+        </div>
       </div>
-      <div className="mt-2 text-2xl font-bold text-slate-800">{value}</div>
-      {change !== undefined && (
-        <div className={`text-xs mt-1 ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+
+      {change !== undefined ? (
+        <div
+          className={`mt-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
+            change >= 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
+          }`}
+        >
           {change >= 0 ? '▲' : '▼'} {Math.abs(change)}%
         </div>
+      ) : (
+        hint && <p className="mt-3 text-xs text-slate-400">{hint}</p>
       )}
     </div>
   );

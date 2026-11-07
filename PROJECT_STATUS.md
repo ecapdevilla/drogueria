@@ -1,11 +1,16 @@
 # Droguería Pharmacy Management Application - Project Documentation
 
+> 📌 **Para retomar el trabajo entre sesiones:** lee [`AGENTS.md`](./AGENTS.md) y
+> [`HANDOFF.md`](./HANDOFF.md). Ahí está el estado actual, las decisiones y los pendientes.
+
 ## Current Status ✅
 
-**Application Status:** COMPLETE and WORKING
-- TypeScript compilation: PASS (npx tsc --noEmit succeeds)
-- Vite build: PASS (vite build produces dist/ successfully)
-- Runtime: Application runs at http://localhost:5173
+**Application Status:** COMPLETE and WORKING — Fase 0 + Fase 1
+- TypeScript compilation: PASS (`npm run typecheck`)
+- Lint: PASS (`npm run lint`)
+- Tests: PASS (73/73, `npm run test`)
+- Vite build: PASS (`npm run build`)
+- Runtime: `npm run dev` (por defecto http://localhost:5173)
 
 **Parts Completed (of 10):**
 1. ✅ Sidebar.tsx - Fixed duplicate route `/productos` → `/clientes`, fixed all HTML entities/emojis
@@ -211,7 +216,7 @@ Create `src/services/postgres.service.ts` with client setup.
 
 # Project Progress Tracker
 
-**Last Updated:** 2026-11-05
+**Last Updated:** 2026-11-06
 
 **Completed Tasks:**
 - [x] Tarea 1: Fix Sidebar duplicate route `/productos` → `/clientes`
@@ -237,4 +242,43 @@ Create `src/services/postgres.service.ts` with client setup.
 3. No immediate blockers - application is complete
 
 ---
-*Document generated as part of project maintenance. All 10 parts completed successfully.*
+
+# Fase 1 — Robustez, validación y rediseño ✅
+
+**Fecha:** 2026-11-06
+
+## Completado
+
+- **Validación central con Zod** en `src/domain/schemas.ts` para productos, compras, ventas, gastos, clientes, devoluciones y caja. Todas las acciones del store validan antes de escribir.
+- **Formularios con React Hook Form + `zodResolver`** en Productos, Gastos, Clientes y Compras (con `useFieldArray`).
+- **Mensajes de validación en español** y sin errores crudos de Zod, incluidos los casos de campos vacíos o ausentes.
+- **`forwardRef`** en `Input`, `Select`, `Textarea` y `Checkbox` para que React Hook Form registre correctamente los campos.
+- **Error Boundary** global (`src/components/ErrorBoundary.tsx`) envuelto en `main.tsx`.
+- **Pruebas automatizadas** con Vitest + Testing Library: **73 pruebas en 12 archivos** (servicios, esquemas, utilidades y formulario de productos).
+- **Calidad de código**: ESLint, Prettier, scripts npm y CI con GitHub Actions (`.github/workflows/ci.yml`).
+- **Rediseño visual**: paleta índigo (`brand`), tipografías Inter + Plus Jakarta Sans, tarjetas `rounded-2xl`, sidebar oscuro responsive, topbar con modal de caja, KPIs, gráficos, tablas y estados vacíos renovados.
+- **Accesibilidad y responsive**: etiquetas asociadas, `aria-invalid`, `aria-describedby`, `role="alert"`, foco visible en modales y navegación móvil.
+
+## Verificación
+
+| Comando | Resultado |
+| --- | --- |
+| `npm run typecheck` | ✅ Sin errores |
+| `npm run lint` | ✅ Sin errores ni warnings |
+| `npm run test` | ✅ 73/73 pruebas |
+| `npm run build` | ✅ Build de producción generado |
+| Smoke test en navegador | ✅ 11 rutas, alta/edición/eliminación, venta POS, validaciones y restauración de demo |
+
+## Archivos clave de Fase 1
+
+- `src/domain/schemas.ts`, `src/domain/validation.ts`
+- `src/components/ErrorBoundary.tsx`
+- `src/components/ui/{Input,Select,Textarea,Checkbox,Table,Modal,Toast,Badge,Button,DataTable,EmptyState,ConfirmDialog}.tsx`
+- `src/pages/{Dashboard,Products,Inventory,POS,Purchases,Cash,Expenses,Returns,Customers,Reports,Settings}.tsx`
+- `src/store/useAppStore.ts`
+- `vitest.config.ts`, `src/test/setup.ts`, `src/test/fixtures.ts`
+- `.eslintrc.cjs`, `.prettierrc`, `.github/workflows/ci.yml`
+
+---
+
+*Document generated as part of project maintenance. Fase 0 y Fase 1 completadas.*

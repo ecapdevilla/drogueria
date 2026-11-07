@@ -4,11 +4,21 @@ import { id } from '../utils/id';
 export interface PurchaseDraft {
   supplierId: string;
   invoiceRef?: string;
-  items: { productId: string; quantity: number; unitCost: number; lotCode?: string; expiryDate?: string }[];
+  items: {
+    productId: string;
+    quantity: number;
+    unitCost: number;
+    lotCode?: string;
+    expiryDate?: string;
+  }[];
   date?: string;
 }
 
 export function addPurchase(db: DBShape, draft: PurchaseDraft): DBShape {
+  const supplier = db.suppliers.find(s => s.id === draft.supplierId);
+  if (!supplier) throw new Error('Proveedor no encontrado');
+  if (supplier.active === false) throw new Error('El proveedor está inactivo');
+
   const newLots: Lot[] = [];
   const newMovements: Movement[] = [];
   const purchaseDate = draft.date ?? new Date().toISOString();
@@ -59,8 +69,18 @@ export function addPurchase(db: DBShape, draft: PurchaseDraft): DBShape {
   };
 
   const products = db.products.map(p => {
-    const added = draft.items.filter(i => i.productId === p.id).reduce((s, i) => s + i.quantity, 0);
-    return added ? { ...p, stock: p.stock + added } : p;
+    const lines = draft.items.filter(i => i.productId === p.id);
+    if (!lines.length) return p;
+
+    const added = lines.reduce((sum, line) => sum + line.quantity, 0);
+    const latestCost = [...lines].reverse().find(line => line.unitCost > 0)?.unitCost;
+
+    return {
+      ...p,
+      stock: p.stock + added,
+      mainSupplierId: draft.supplierId,
+      ...(latestCost !== undefined ? { purchasePrice: Math.round(latestCost) } : {}),
+    };
   });
 
   return {

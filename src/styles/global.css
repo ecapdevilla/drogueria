@@ -2,25 +2,110 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --color-primary: #3b82f6;
+@layer base {
+  :root {
+    --color-primary: #4f46e5;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply m-0 bg-slate-50 font-sans text-slate-900 antialiased;
+  }
+
+  ::selection {
+    @apply bg-brand-200 text-brand-950;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand-500/60 ring-offset-2;
+  }
+
+  /* Scrollbar sutil */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full border-2 border-transparent bg-slate-300 bg-clip-content;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400 bg-clip-content;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  -webkit-font-smoothing: antialiased;
+@layer components {
+  .card {
+    @apply rounded-2xl border border-slate-200/70 bg-white shadow-soft;
+  }
+
+  .card-hover {
+    @apply transition duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-card;
+  }
+
+  .page-title {
+    @apply font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-[1.7rem];
+  }
+
+  .page-subtitle {
+    @apply mt-1 text-sm text-slate-500;
+  }
+
+  .section-title {
+    @apply font-display text-base font-bold tracking-tight text-slate-900;
+  }
+
+  .field-label {
+    @apply text-xs font-semibold uppercase tracking-wide text-slate-500;
+  }
 }
 
-/* Scrollbar sutil */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
+
+/* Recibo de venta en impresora térmica de 80 mm. */
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 4mm;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  #sale-receipt,
+  #sale-receipt * {
+    visibility: visible !important;
+  }
+
+  #sale-receipt {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 80mm;
+    max-width: 80mm;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: #fff;
+    color: #000;
+    box-shadow: none;
+  }
 }

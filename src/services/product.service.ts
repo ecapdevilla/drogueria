@@ -1,4 +1,4 @@
-import { Product, Lot, Movement, DBShape } from '../types';
+import { Product, DBShape } from '../types';
 import { id } from '../utils/id';
 
 export interface ProductDraft {
@@ -47,7 +47,7 @@ export function addProduct(db: DBShape, draft: ProductDraft): DBShape {
 export function updateProduct(db: DBShape, productId: string, patch: Partial<Product>): DBShape {
   return {
     ...db,
-    products: db.products.map(p => p.id === productId ? { ...p, ...patch } : p),
+    products: db.products.map(p => (p.id === productId ? { ...p, ...patch } : p)),
   };
 }
 
@@ -65,12 +65,13 @@ export function deactivateProduct(db: DBShape, productId: string): DBShape {
 export function searchProducts(db: DBShape, query: string): Product[] {
   const q = query.trim().toLowerCase();
   if (!q) return db.products.filter(p => p.active);
-  return db.products.filter(p =>
-    p.active &&
-    (p.commercialName.toLowerCase().includes(q) ||
-     p.internalCode.toLowerCase().includes(q) ||
-     (p.barcode?.toLowerCase().includes(q) ?? false) ||
-     p.category.toLowerCase().includes(q))
+  return db.products.filter(
+    p =>
+      p.active &&
+      (p.commercialName.toLowerCase().includes(q) ||
+        p.internalCode.toLowerCase().includes(q) ||
+        (p.barcode?.toLowerCase().includes(q) ?? false) ||
+        p.category.toLowerCase().includes(q)),
   );
 }
 

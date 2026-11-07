@@ -29,8 +29,11 @@ export function deleteExpense(db: DBShape, expenseId: string): DBShape {
 }
 
 export function expensesByCategory(db: DBShape): Record<string, number> {
-  return db.expenses.reduce((acc, e) => {
-    acc[e.category] = (acc[e.category] ?? 0) + e.amount;
-    return acc;
-  }, {} as Record<string, number>);
+  return db.expenses.reduce(
+    (acc, e) => {
+      acc[e.category] = (acc[e.category] ?? 0) + e.amount;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 }

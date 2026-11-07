@@ -21,9 +21,10 @@ export function addCustomer(db: DBShape, draft: CustomerDraft): DBShape {
 export function searchCustomers(db: DBShape, query: string): Customer[] {
   const q = query.trim().toLowerCase();
   if (!q) return db.customers;
-  return db.customers.filter(c =>
-    c.name.toLowerCase().includes(q) ||
-    (c.identification?.toLowerCase().includes(q) ?? false) ||
-    (c.phone?.includes(q) ?? false)
+  return db.customers.filter(
+    c =>
+      c.name.toLowerCase().includes(q) ||
+      (c.identification?.toLowerCase().includes(q) ?? false) ||
+      (c.phone?.includes(q) ?? false),
   );
 }

@@ -3,21 +3,46 @@ import React from 'react';
 interface MiniBarChartProps {
   data: { label: string; value: number }[];
   color?: string;
+  formatValue?: (value: number) => string;
 }
 
-export function MiniBarChart({ data, color = 'bg-blue-500' }: MiniBarChartProps) {
-  if (!data.length) return <p className="text-center text-slate-400 text-sm py-4">Sin datos</p>;
-  const max = Math.max(...data.map(d => d.value), 1);
+export function MiniBarChart({
+  data,
+  color = 'from-brand-500 to-brand-400',
+  formatValue = value => value.toLocaleString('es-CO'),
+}: MiniBarChartProps) {
+  if (!data.length) {
+    return (
+      <div className="flex h-44 items-center justify-center text-sm text-slate-400">
+        Sin datos para mostrar
+      </div>
+    );
+  }
+
+  const max = Math.max(...data.map(item => item.value), 1);
+
   return (
-    <div className="flex items-end gap-2 h-24">
-      {data.map((d, i) => (
-        <div key={i} className="flex-1 flex flex-col items-center gap-1">
-          <span className="text-xs text-slate-600">{d.value}</span>
+    <div className="flex h-44 items-end gap-3">
+      {data.map((item, index) => (
+        <div
+          key={`${item.label}-${index}`}
+          className="flex h-full flex-1 flex-col items-center justify-end gap-2"
+        >
+          <span className="text-[10px] font-semibold text-slate-500">
+            {formatValue(item.value)}
+          </span>
           <div
-            className={`w-full ${color} rounded-t`}
-            style={{ height: `${(d.value / max) * 100}%`, minHeight: '4px' }}
+            className={`w-full max-w-14 rounded-t-xl bg-gradient-to-t ${color} transition-all duration-500`}
+            style={{ height: `${Math.max((item.value / max) * 100, 4)}%` }}
+            role="img"
+            aria-label={`${item.label}: ${formatValue(item.value)}`}
           />
-          <span className="text-xs text-slate-500 truncate w-full text-center">{d.label}</span>
+          <span
+            className="w-full truncate text-center text-[11px] font-medium text-slate-500"
+            title={item.label}
+          >
+            {item.label}
+          </span>
         </div>
       ))}
     </div>

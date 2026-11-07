@@ -1,4 +1,4 @@
-import { Return, Sale, Lot, Movement, Product, DBShape } from '../types';
+import { Return, Movement, DBShape } from '../types';
 import { id } from '../utils/id';
 
 export interface ReturnDraft {
@@ -29,7 +29,7 @@ export function processReturn(db: DBShape, draft: ReturnDraft): DBShape {
 
       if (lot) {
         lots = lots.map(l =>
-          l.id === lot.id ? { ...l, quantity: l.quantity + item.quantity } : l
+          l.id === lot.id ? { ...l, quantity: l.quantity + item.quantity } : l,
         );
       } else {
         // Crear lote de devolución sin fecha de vencimiento específica
@@ -47,7 +47,7 @@ export function processReturn(db: DBShape, draft: ReturnDraft): DBShape {
       }
 
       products = products.map(p =>
-        p.id === product.id ? { ...p, stock: p.stock + item.quantity } : p
+        p.id === product.id ? { ...p, stock: p.stock + item.quantity } : p,
       );
 
       newMovements.push({
@@ -74,7 +74,7 @@ export function processReturn(db: DBShape, draft: ReturnDraft): DBShape {
   return {
     ...db,
     returns: [...db.returns, ret],
-    sales: db.sales.map(s => s.id === draft.saleId ? { ...s, returned: true } : s),
+    sales: db.sales.map(s => (s.id === draft.saleId ? { ...s, returned: true } : s)),
     movements: [...db.movements, ...newMovements],
     products,
     lots,

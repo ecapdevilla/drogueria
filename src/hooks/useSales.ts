@@ -1,5 +1,4 @@
 import { useAppStore } from '../store/useAppStore';
-import { SaleDraft } from '../services/sale.service';
 
 export function useSales() {
   const sales = useAppStore(s => s.db.sales);
