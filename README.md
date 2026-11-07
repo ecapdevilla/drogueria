@@ -34,8 +34,8 @@ VITE_CLOUD_AUTO_SYNC=true
 ```
 
 `VITE_DATA_MODE=local` mantiene la operación en `localStorage`. Para el Sprint 8, cambia a
-`cloud` solo después de ejecutar la migración `202611070001_create_sale_rpc.sql` y validar
-una venta real.
+`cloud` solo después de ejecutar las migraciones `202611070001_create_sale_rpc.sql` y
+`202611070002_operations_rpc.sql`, y validar cada flujo.
 
 Si dejas `VITE_AUTH_ENABLED=false`, la app funciona en **modo local/demo** con
 `localStorage` y no pide login. Es útil para desarrollo y pruebas E2E.

@@ -12,9 +12,10 @@ En **Supabase → SQL Editor**, ejecuta en este orden:
 3. `migrations/202611060003_analytics_views.sql`
 4. `seed.sql`
 
-Para el Sprint 8 (venta transaccional):
+Para el Sprint 8 (operación en la nube):
 
 5. `migrations/202611070001_create_sale_rpc.sql`
+6. `migrations/202611070002_operations_rpc.sql`
 
 El paso 2 activa **Row Level Security** en todas las tablas. Sin RLS, la `anon key`
 no debe usarse en el frontend.
@@ -90,17 +91,24 @@ La operación sigue siendo local con un espejo a Supabase. Las escrituras operat
 y el multiusuario real son el Sprint 8. Antes de producción, crea usuarios `cashier` e
 `inventory` y valida RLS con ellos.
 
-## 7. Sprint 8 (en curso)
+## 7. Sprint 8
 
-La migración `migrations/202611070001_create_sale_rpc.sql` agrega la RPC `create_sale`.
-Para probarla:
+Con `VITE_DATA_MODE=cloud` la operación escribe directo en Supabase:
 
-1. Ejecuta la migración en el SQL Editor.
+- `create_sale`: venta, FEFO, pagos, descuentos, vueltas y movimientos.
+- `create_purchase`: compra, lote, costo, stock y movimiento.
+- `adjust_lot`: ajuste o descarga de lote con movimiento trazable.
+- `process_return`: devolución y reposición opcional.
+- `open_cash` / `close_cash`: caja y arqueo calculados en el servidor.
+- Productos, clientes, proveedores y gastos usan escrituras directas con RLS.
+
+Para probarlo:
+
+1. Ejecuta las migraciones `202611070001` y `202611070002` en el SQL Editor.
 2. En `.env.local` o Vercel, define `VITE_DATA_MODE=cloud`.
 3. Reinicia el servidor / redeploy.
-4. Asegúrate de que los productos existan en Supabase (usa **Configuración → Subir datos**).
-5. Haz una venta desde el POS y verifica `sales`, `sale_items`, `payments`, `movements`,
-   `lots` y `products`.
+4. Verifica que los productos existan en Supabase (usa **Configuración → Subir datos**).
+5. Prueba venta, compra, ajuste, devolución y caja; revisa las tablas y los movimientos.
 
 Mientras `VITE_DATA_MODE` sea `local`, la app sigue funcionando con `localStorage` y el
 espejo automático del administrador.

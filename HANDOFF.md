@@ -32,7 +32,7 @@ Zod 4 · React Hook Form 7 · Vitest 2 + Testing Library.
 | **Fase 2 · Sprint 5 (Durabilidad y PWA)** | ✅ **Completo y verificado** |
 | **Fase 3 · Sprint 6 (Supabase, auth y roles)** | ✅ **Completo y verificado** |
 | **Fase 3 · Sprint 7 (Datos y analítica)** | ✅ **Completo** (RLS por rol pendiente en Sprint 8) |
-| **Fase 3 · Sprint 8 (Operación multiusuario)** | 🚧 **En curso** (venta transaccional `create_sale`) |
+| **Fase 3 · Sprint 8 (Operación multiusuario)** | 🚧 **En curso** (venta probada; operaciones implementadas) |
 
 ### Verificación de la última sesión (2026-11-06)
 
@@ -312,7 +312,7 @@ Los cinco sprints de la Fase 2 (Track A, sin backend) están cerrados.
 Objetivo: dejar de depender del espejo de base completa y escribir directo en Supabase.
 El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 
-**Bloque 1 — Venta transaccional (en curso):**
+**Bloque 1 — Venta transaccional (completo y probado):**
 
 - [x] Migración `202611070001_create_sale_rpc.sql` con:
   - `create_sale` transaccional, `security definer`, validación de rol/sucursal.
@@ -325,19 +325,31 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 - [x] POS: `buildSale` espera la RPC, deshabilita el cobro mientras procesa y refresca la base.
 - [x] Hidratación desde Supabase al iniciar sesión en modo cloud.
 - [x] El modo local (`VITE_DATA_MODE=local`) sigue intacto para demo/E2E.
-- [ ] Ejecutar la migración `004` en Supabase.
-- [ ] Probar una venta real en modo cloud y validar stock/pagos/movimientos.
-- [ ] Implementar `create_purchase`, `adjust_lot` y `process_return`.
-- [ ] Implementar escrituras directas de productos, clientes, proveedores, caja y gastos.
-- [ ] Cola offline con idempotencia.
-- [ ] Probar RLS con `cashier` e `inventory`.
+- [x] Migración ejecutada en Supabase y venta real verificada:
+  - RPC `create_sale` → HTTP 200.
+  - Stock 115 → 114, lote FEFO asignado, pago/efectivo/vueltas correctos.
+  - Venta, detalle, pagos y movimiento visibles tras recargar.
 
-- RPC transaccional `create_sale` (FEFO, stock, pagos, movimientos y numeración).
-- RPC `create_purchase`, `adjust_lot` y `process_return`.
-- Escrituras directas desde POS, compras, inventario, caja, gastos y devoluciones.
-- Cola offline y resolución de conflictos.
-- Pruebas RLS con `cashier` e `inventory`.
-- Despliegue real en Vercel y validación en producción.
+**Bloque 2 — Resto de operaciones (implementado; falta ejecutar la migración):**
+
+- [x] Migración `202611070002_operations_rpc.sql` con:
+  - `create_purchase` (lote, costo, stock, movimiento `PURCHASE`, idempotencia).
+  - `adjust_lot` (stock/lote bloqueados, movimiento `ADJUSTMENT`/`EXPIRED`).
+  - `process_return` (devolución, reposición opcional, movimiento `RETURN`).
+  - `open_cash` / `close_cash` (arqueo calculado en el servidor).
+  - `require_staff` para validar perfil, sucursal y rol en una sola llamada.
+- [x] `cloud-write.service.ts`: compras, ajustes, devoluciones, caja, gastos,
+  productos, clientes y proveedores.
+- [x] Store: todas las acciones de escritura usan Supabase cuando `VITE_DATA_MODE=cloud`
+  y refrescan la caché local después de cada operación.
+- [x] Productos: borrar en modo cloud desactiva (conserva historial de ventas/lotes).
+- [x] `vitest.config.ts` fuerza `VITE_DATA_MODE=local` para que las pruebas no dependan de `.env.local`.
+- [x] Escritura directa verificada (edición de producto persistida tras recargar).
+- [x] Ejecutar `202611070002_operations_rpc.sql` en Supabase.
+- [x] Probar compra, ajuste, devolución y caja reales en modo cloud.
+- [ ] Cola offline con idempotencia.
+- [ ] Probar RLS con usuarios `cashier` e `inventory`.
+- [ ] Realtime para que una venta aparezca en otro equipo sin recargar.
 
 ### Siguientes fases
 
@@ -351,11 +363,12 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 - [x] Cargar datos demo/ventas, sincronizar y verificar las vistas.
 - [x] Verificar la pantalla **Analítica** y las exportaciones CSV.
 - [x] Lighthouse y configuración de Vercel.
-- [ ] Ejecutar `supabase/migrations/202611070001_create_sale_rpc.sql`.
-- [ ] Probar una venta en modo `cloud` y validar stock/pagos/movimientos.
+- [x] Ejecutar `supabase/migrations/202611070001_create_sale_rpc.sql`.
+- [x] Probar una venta en modo `cloud` y validar stock/pagos/movimientos.
+- [x] Ejecutar `supabase/migrations/202611070002_operations_rpc.sql`.
+- [x] Probar compra, ajuste de lote, devolución y caja en modo `cloud`.
 - [ ] Activar `VITE_DATA_MODE=cloud` en Vercel solo después de probar.
 - [ ] Crear usuarios `cashier` e `inventory` y probar RLS.
-- [ ] Implementar las RPC restantes del Sprint 8.
 - [ ] Revisar `npm audit` y decidir si actualizar dependencias.
 - [x] Desplegar en Vercel con las variables de entorno.
 - [ ] Configurar Site URL y Redirect URLs en Supabase Auth para correos.
@@ -382,6 +395,24 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 
 ## 9. Bitácora
 
+### 2026-11-07 — Fase 3 · Sprint 8 (bloque 2: operaciones y escrituras directas)
+- Nueva migración `202611070002_operations_rpc.sql`:
+  - `require_staff`, `create_purchase`, `adjust_lot`, `process_return`,
+    `open_cash` y `close_cash`.
+  - Idempotencia en compras y devoluciones.
+- `cloud-write.service.ts` ampliado: productos, compras, inventario, devoluciones,
+  caja, gastos, clientes y proveedores.
+- Store: todas las escrituras usan Supabase cuando `VITE_DATA_MODE=cloud` y refrescan
+  la caché local; el modo local conserva su comportamiento.
+- Productos: el borrado en cloud desactiva el producto para no perder historial.
+- `vitest.config.ts` fuerza `VITE_DATA_MODE=local`.
+- Verificado: venta real en Supabase (RPC 200, stock 115 → 114, FEFO, pagos y vueltas)
+  y edición de producto persistida tras recargar.
+- Pruebas: **204/204 en 27 archivos**, typecheck, lint y build correctos.
+- Pendiente: ejecutar la migración `202611070002` y probar compra, ajuste, devolución y caja.
+- **Verificado:** migración ejecutada; `create_purchase` 200, `adjust_lot` 204, `process_return` 200,
+  `open_cash`/`close_cash` 200 (diferencia 0).
+
 ### 2026-11-07 — Fase 3 · Sprint 8 (bloque 1: venta transaccional)
 - Nueva migración `202611070001_create_sale_rpc.sql`:
   - `create_sale` con validación de perfil/rol/sucursal, FEFO, bloqueo de stock,
@@ -393,8 +424,7 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 - Hidratación desde Supabase al iniciar sesión en modo cloud.
 - Modo local intacto: `VITE_DATA_MODE=local` para demo/E2E.
 - Pruebas: **204/204 en 27 archivos**, build correcto.
-- Pendiente: ejecutar la migración `004` en Supabase, probar una venta cloud y activar
-  `VITE_DATA_MODE=cloud` en Vercel después de validar.
+- Migración ejecutada y venta cloud verificada el mismo día (ver bloque 2).
 
 ### 2026-11-07 — Listo para UAT controlada
 - Guía de pruebas creada en `UAT_GUIDE.md` (15 escenarios, datos demo, PWA, atajos y

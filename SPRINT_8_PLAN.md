@@ -3,7 +3,8 @@
 **Objetivo:** dejar de usar el espejo de base completa y escribir las operaciones directamente
 en Supabase con RPCs transaccionales, manteniendo el modo local para demo/offline.
 
-**Estado (2026-11-07):** bloque 1 implementado; pendiente ejecutar la migración y probar.
+**Estado (2026-11-07):** bloques 1 y 2 implementados; venta real verificada. Falta ejecutar
+la migración de operaciones y probar compras, ajustes, devoluciones y caja.
 
 ## 0. Estado del bloque 1
 
@@ -13,8 +14,17 @@ en Supabase con RPCs transaccionales, manteniendo el modo local para demo/offlin
 - `VITE_DATA_MODE=cloud` en el frontend.
 - POS cobra contra la RPC, muestra “Procesando…” y refresca la base desde Supabase.
 - Hidratación desde Supabase al iniciar sesión en modo cloud.
-- **Pendiente:** ejecutar la migración, probar una venta real, activar el modo cloud en
-  Vercel y continuar con compras, inventario y devoluciones.
+- **Verificado:** migración ejecutada, venta real con RPC 200, stock 115 → 114, FEFO,
+  pagos, efectivo, vueltas y movimiento `SALE` correctos.
+
+## 0.1 Estado del bloque 2
+
+- `supabase/migrations/202611070002_operations_rpc.sql` con `require_staff`,
+  `create_purchase`, `adjust_lot`, `process_return`, `open_cash` y `close_cash`.
+- Escrituras directas para productos, clientes, proveedores y gastos.
+- El store usa Supabase cuando `VITE_DATA_MODE=cloud` y refresca la caché local.
+- **Verificado:** migración ejecutada; `create_purchase` 200, `adjust_lot` 204, `process_return` 200,
+  `open_cash`/`close_cash` 200 (diferencia 0).
 
 ---
 

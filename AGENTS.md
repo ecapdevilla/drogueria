@@ -94,10 +94,13 @@ y se persiste en `localStorage` bajo la clave `drogueria_db_v1`.
 32. **Atajos.** Usa `useHotkeys` para atajos globales y `ShortcutsHelp` para documentarlos.
     Las teclas de una letra se ignoran dentro de inputs salvo `allowInInput`; no registres
     atajos que choquen con el POS (`F2`/`F3`) ni con el flujo de escritura.
-33. **Modo cloud (Sprint 8).** `VITE_DATA_MODE=cloud` hace que el POS cree ventas con la RPC
-    `create_sale`; `local` mantiene el flujo de `localStorage`. No actives `cloud` en Vercel
-    hasta ejecutar la migración `004` y verificar una venta completa. Los demás módulos siguen
-    en local hasta implementar sus RPC/escrituras directas.
+33. **Modo cloud (Sprint 8).** `VITE_DATA_MODE=cloud` hace que **todas** las escrituras del
+    store usen Supabase: RPCs `create_sale`, `create_purchase`, `adjust_lot`,
+    `process_return`, `open_cash` y `close_cash`, y escrituras directas con RLS para
+    productos, clientes, proveedores y gastos. `local` mantiene el flujo de `localStorage`.
+    No actives `cloud` en Vercel hasta ejecutar las migraciones `202611070001` y
+    `202611070002` y probar cada flujo. En cloud, eliminar un producto lo **desactiva** para
+    conservar el historial. Las pruebas unitarias fuerzan `local` en `vitest.config.ts`.
 
 ## Antes de dar algo por terminado
 
@@ -138,8 +141,9 @@ Si tocaste UI o flujos, haz además un smoke test en navegador
 | `src/components/auth/RequireAuth.tsx` | Guarda de rutas por sesión, estado y rol |
 | `src/services/cloud-migration.service.ts` | Subir/descargar datos entre local y Supabase |
 | `src/services/cloud-sync.service.ts` | Espejo automático para administradores |
-| `src/services/cloud-write.service.ts` | RPC `create_sale` (Sprint 8) |
+| `src/services/cloud-write.service.ts` | RPC y escrituras directas del Sprint 8 |
 | `supabase/migrations/202611070001_create_sale_rpc.sql` | Venta transaccional en Supabase |
+| `supabase/migrations/202611070002_operations_rpc.sql` | Compras, ajustes, devoluciones y caja |
 | `src/services/analytics.service.ts` · `src/pages/Analytics.tsx` | Consultas y pantalla de analítica |
 | `vercel.json` · `DEPLOY_VERCEL.md` | Configuración y guía de despliegue |
 | `README.md` · `INFORME_AUTONOMO.md` | Entrada al proyecto e informe de la sesión autónoma |

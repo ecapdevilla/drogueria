@@ -13,6 +13,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    // Las pruebas siempre usan el modo local, aunque `.env.local` esté en cloud.
+    env: {
+      VITE_DATA_MODE: 'local',
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
