@@ -14,6 +14,7 @@ import { PaymentSplit } from '../../types';
 interface PaymentModalProps {
   open: boolean;
   total: number;
+  loading?: boolean;
   onClose: () => void;
   onConfirm: (payments: PaymentSplit[], cashReceived?: number) => void;
 }
@@ -23,7 +24,13 @@ const defaults = (total: number): PaymentFormInput => ({
   cashReceived: total,
 });
 
-export function PaymentModal({ open, total, onClose, onConfirm }: PaymentModalProps) {
+export function PaymentModal({
+  open,
+  total,
+  loading = false,
+  onClose,
+  onConfirm,
+}: PaymentModalProps) {
   const {
     control,
     register,
@@ -83,9 +90,9 @@ export function PaymentModal({ open, total, onClose, onConfirm }: PaymentModalPr
           <Button variant="secondary" onClick={onClose}>
             Cancelar
           </Button>
-          <Button type="submit" form="payment-form" disabled={!canConfirm}>
+          <Button type="submit" form="payment-form" disabled={!canConfirm || loading}>
             <Banknote className="h-4 w-4" />
-            Confirmar cobro
+            {loading ? 'Procesando…' : 'Confirmar cobro'}
           </Button>
         </>
       }

@@ -12,6 +12,10 @@ En **Supabase → SQL Editor**, ejecuta en este orden:
 3. `migrations/202611060003_analytics_views.sql`
 4. `seed.sql`
 
+Para el Sprint 8 (venta transaccional):
+
+5. `migrations/202611070001_create_sale_rpc.sql`
+
 El paso 2 activa **Row Level Security** en todas las tablas. Sin RLS, la `anon key`
 no debe usarse en el frontend.
 
@@ -85,3 +89,18 @@ Flujo:
 La operación sigue siendo local con un espejo a Supabase. Las escrituras operativas directas
 y el multiusuario real son el Sprint 8. Antes de producción, crea usuarios `cashier` e
 `inventory` y valida RLS con ellos.
+
+## 7. Sprint 8 (en curso)
+
+La migración `migrations/202611070001_create_sale_rpc.sql` agrega la RPC `create_sale`.
+Para probarla:
+
+1. Ejecuta la migración en el SQL Editor.
+2. En `.env.local` o Vercel, define `VITE_DATA_MODE=cloud`.
+3. Reinicia el servidor / redeploy.
+4. Asegúrate de que los productos existan en Supabase (usa **Configuración → Subir datos**).
+5. Haz una venta desde el POS y verifica `sales`, `sale_items`, `payments`, `movements`,
+   `lots` y `products`.
+
+Mientras `VITE_DATA_MODE` sea `local`, la app sigue funcionando con `localStorage` y el
+espejo automático del administrador.

@@ -5,6 +5,8 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
 
 export const isSupabaseConfigured = Boolean(url && anonKey);
 export const isAuthEnabled = import.meta.env.VITE_AUTH_ENABLED === 'true' && isSupabaseConfigured;
+/** Escrituras operativas directas a Supabase (Sprint 8). */
+export const isCloudWriteEnabled = import.meta.env.VITE_DATA_MODE === 'cloud';
 
 /**
  * Cliente público de Supabase. Solo usa la `anon key`; la seguridad real vive en RLS.

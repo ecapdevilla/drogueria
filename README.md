@@ -29,8 +29,13 @@ Completa `.env.local` con:
 VITE_SUPABASE_URL=https://uprtvwsmxtrdjnwimiux.supabase.co
 VITE_SUPABASE_ANON_KEY=...
 VITE_AUTH_ENABLED=true
+VITE_DATA_MODE=local
 VITE_CLOUD_AUTO_SYNC=true
 ```
+
+`VITE_DATA_MODE=local` mantiene la operación en `localStorage`. Para el Sprint 8, cambia a
+`cloud` solo después de ejecutar la migración `202611070001_create_sale_rpc.sql` y validar
+una venta real.
 
 Si dejas `VITE_AUTH_ENABLED=false`, la app funciona en **modo local/demo** con
 `localStorage` y no pide login. Es útil para desarrollo y pruebas E2E.

@@ -12,7 +12,7 @@ import {
 } from '../services/product.service';
 import { addPurchase } from '../services/purchase.service';
 import { adjustLot as applyLotAdjustment } from '../services/inventory.service';
-import { buildSale, grossProfit, SaleDraft } from '../services/sale.service';
+import { buildSale as buildSaleLocal, grossProfit, SaleDraft } from '../services/sale.service';
 import { openCash, closeCash } from '../services/cash.service';
 import { addExpense, deleteExpense } from '../services/expense.service';
 import { processReturn } from '../services/return.service';
@@ -26,6 +26,10 @@ import {
 } from '../services/supplier.service';
 import { buildReport, ReportRange, ReportSummary } from '../services/report.service';
 import { scheduleCloudSync } from '../services/cloud-sync.service';
+import { createSaleInCloud } from '../services/cloud-write.service';
+import { loadCloudData } from '../services/cloud-migration.service';
+import { isCloudWriteEnabled } from '../lib/supabase';
+import { useAuthStore } from './useAuthStore';
 import {
   adjustmentSchema,
   customerSchema,
@@ -72,7 +76,7 @@ interface AppStore {
   // Inventory
   adjustLot: (draft: any) => void;
   // Sales
-  buildSale: (draft: SaleDraft) => any;
+  buildSale: (draft: SaleDraft) => Promise<any>;
   grossProfit: () => number;
   // Cash
   openCash: (initialAmount: number) => void;
@@ -214,11 +218,40 @@ export const useAppStore = create<AppStore>((set, get) => {
           'success',
         );
       }),
-    buildSale: draft => {
+    buildSale: async draft => {
       try {
-        const { db } = get();
         const parsed = saleSchema.parse(draft);
-        const result = buildSale(parsed, db);
+
+        if (isCloudWriteEnabled) {
+          const profile = useAuthStore.getState().profile;
+          if (!profile?.organization_id || !profile.store_id) {
+            throw new Error('Tu perfil no tiene organización o sucursal asignada');
+          }
+
+          const sale = await createSaleInCloud(parsed as SaleDraft, {
+            organizationId: profile.organization_id,
+            storeId: profile.store_id,
+            userId: profile.id,
+          });
+
+          try {
+            const freshDb = await loadCloudData({
+              organizationId: profile.organization_id,
+              storeId: profile.store_id,
+              userId: profile.id,
+            });
+            set({ db: freshDb });
+            StorageService.save(freshDb);
+          } catch (refreshError) {
+            console.error('La venta se creó, pero no se pudo refrescar la base', refreshError);
+          }
+
+          get().pushToast('Venta registrada', 'success');
+          return { sale, dbPatch: {} };
+        }
+
+        const { db } = get();
+        const result = buildSaleLocal(parsed, db);
         set({ db: { ...db, ...result.dbPatch } as DBShape });
         get().save();
         get().pushToast('Venta registrada', 'success');

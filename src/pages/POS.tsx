@@ -46,6 +46,7 @@ export default function POS() {
   const [customerId, setCustomerId] = useState('');
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptState | null>(null);
+  const [saving, setSaving] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const filtered = search.trim()
@@ -185,30 +186,37 @@ export default function POS() {
     window.setTimeout(() => searchRef.current?.focus(), 50);
   };
 
-  const confirmSale = (payments: PaymentSplit[], cashReceived?: number) => {
-    const result = buildSale({
-      items: cart.map(item => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        discount: item.discount || undefined,
-      })),
-      discount: globalDiscountApplied,
-      paymentMethod: payments[0]?.method ?? 'CASH',
-      payments,
-      cashReceived,
-      customerId: customerId || undefined,
-    });
-    if (!result) return;
+  const confirmSale = async (payments: PaymentSplit[], cashReceived?: number) => {
+    if (saving) return;
+    setSaving(true);
 
-    const customerName = customerId
-      ? db.customers.find(customer => customer.id === customerId)?.name
-      : undefined;
+    try {
+      const result = await buildSale({
+        items: cart.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          discount: item.discount || undefined,
+        })),
+        discount: globalDiscountApplied,
+        paymentMethod: payments[0]?.method ?? 'CASH',
+        payments,
+        cashReceived,
+        customerId: customerId || undefined,
+      });
+      if (!result) return;
 
-    setReceipt({ sale: result.sale, customerName });
-    setPaymentOpen(false);
-    setCart([]);
-    setGlobalDiscount(0);
-    setCustomerId('');
+      const customerName = customerId
+        ? db.customers.find(customer => customer.id === customerId)?.name
+        : undefined;
+
+      setReceipt({ sale: result.sale, customerName });
+      setPaymentOpen(false);
+      setCart([]);
+      setGlobalDiscount(0);
+      setCustomerId('');
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Atajos de teclado para agilizar el mostrador.
@@ -553,6 +561,7 @@ export default function POS() {
         <PaymentModal
           open
           total={total}
+          loading={saving}
           onClose={() => setPaymentOpen(false)}
           onConfirm={confirmSale}
         />

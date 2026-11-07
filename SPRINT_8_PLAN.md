@@ -3,6 +3,19 @@
 **Objetivo:** dejar de usar el espejo de base completa y escribir las operaciones directamente
 en Supabase con RPCs transaccionales, manteniendo el modo local para demo/offline.
 
+**Estado (2026-11-07):** bloque 1 implementado; pendiente ejecutar la migración y probar.
+
+## 0. Estado del bloque 1
+
+- `supabase/migrations/202611070001_create_sale_rpc.sql` con `create_sale`, `sale_to_json`,
+  `idempotency_key` y `line_no`.
+- `src/services/cloud-write.service.ts`.
+- `VITE_DATA_MODE=cloud` en el frontend.
+- POS cobra contra la RPC, muestra “Procesando…” y refresca la base desde Supabase.
+- Hidratación desde Supabase al iniciar sesión en modo cloud.
+- **Pendiente:** ejecutar la migración, probar una venta real, activar el modo cloud en
+  Vercel y continuar con compras, inventario y devoluciones.
+
 ---
 
 ## 1. Principios

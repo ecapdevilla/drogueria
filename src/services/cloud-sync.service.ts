@@ -1,5 +1,5 @@
 import { DBShape } from '../types';
-import { isAuthEnabled } from '../lib/supabase';
+import { isAuthEnabled, isCloudWriteEnabled } from '../lib/supabase';
 import { useAuthStore } from '../store/useAuthStore';
 import { syncLocalDataToCloud } from './cloud-migration.service';
 
@@ -53,6 +53,7 @@ async function flush() {
  * Es una sincronización de analítica/respaldo, no el flujo multiusuario definitivo.
  */
 export function scheduleCloudSync(db: DBShape) {
+  if (isCloudWriteEnabled) return;
   if (!isAuthEnabled || import.meta.env.VITE_CLOUD_AUTO_SYNC === 'false') return;
   if (useAuthStore.getState().profile?.role !== 'admin') return;
 

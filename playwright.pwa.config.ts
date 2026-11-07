@@ -23,6 +23,7 @@ export default defineConfig({
     env: {
       ...(process.env as Record<string, string>),
       VITE_AUTH_ENABLED: 'false',
+      VITE_DATA_MODE: 'local',
       VITE_SUPABASE_ANON_KEY: '',
     },
   },
