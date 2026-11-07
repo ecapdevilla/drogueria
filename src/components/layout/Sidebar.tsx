@@ -165,7 +165,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             </div>
           )}
           <p className="mt-3 text-center text-[10px] font-medium uppercase tracking-wider text-slate-600">
-            v1.0 · Fase 3
+            Software 2026 v2
+          </p>
+          <p className="mt-0.5 text-center text-[9px] text-slate-600">
+            Mg Estiben Rafael Capdevilla Pacheco
           </p>
         </div>
       </aside>
