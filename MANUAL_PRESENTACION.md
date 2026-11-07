@@ -211,4 +211,4 @@
 
 ---
 
-**Versión del manual:** Software 2026 v2 · Desarrollado por Mg Estiben Rafael Capdevilla Pacheco
+**Versión del manual:** Software 2026 v2 · Desarrollado por Ing. Estiben Rafael Capdevilla Pacheco

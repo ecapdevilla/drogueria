@@ -168,7 +168,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             Software 2026 v2
           </p>
           <p className="mt-0.5 text-center text-[9px] text-slate-600">
-            Mg Estiben Rafael Capdevilla Pacheco
+            Ing. Estiben Rafael Capdevilla Pacheco
           </p>
         </div>
       </aside>

@@ -121,9 +121,19 @@ export default function Login() {
         <p className="mt-5 text-center text-xs text-slate-400">
           Acceso restringido al personal autorizado.
         </p>
-        <p className="mt-3 text-center text-[10px] font-medium uppercase tracking-[0.18em] text-slate-500">
-          Software 2026 v2 · Desarrollado por Mg Estiben Rafael Capdevilla Pacheco
-        </p>
+        <div className="mt-4 space-y-1 text-center">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Software 2026 v2
+          </p>
+          <p className="text-[11px] font-medium text-slate-400">
+            Desarrollado por Ing. Estiben Rafael Capdevilla Pacheco
+          </p>
+          <p className="text-[10px] text-slate-500">© 2026 · Todos los derechos reservados.</p>
+          <p className="text-[9px] leading-3 text-slate-600">
+            Este software es propiedad de su autor. Queda prohibida su reproducción, distribución o
+            modificación sin autorización escrita.
+          </p>
+        </div>
       </div>
     </main>
   );
