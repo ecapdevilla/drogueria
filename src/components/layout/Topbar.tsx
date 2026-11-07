@@ -90,7 +90,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
         </button>
 
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
             Inicio
           </p>
           <p className="truncate font-display text-sm font-bold text-slate-900">
@@ -108,7 +108,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
             className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset ${
               activeSession
                 ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
-                : 'bg-slate-100 text-slate-500 ring-slate-200'
+                : 'bg-slate-100 text-slate-600 ring-slate-200'
             }`}
           >
             <span className="h-2 w-2 rounded-full bg-current" />
@@ -135,7 +135,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
                 <p className="max-w-[9rem] truncate text-xs font-semibold text-slate-800">
                   {profile.full_name ?? profile.email}
                 </p>
-                <p className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                <p className="text-[10px] font-medium uppercase tracking-wide text-slate-500">
                   {ROLE_LABELS[profile.role]}
                 </p>
               </div>

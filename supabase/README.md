@@ -70,14 +70,18 @@ Completado y verificado:
 - Login real y RLS verificados (anónimo recibe `[]`; admin ve su organización, sucursal y
   productos de su tienda).
 
-## 6. Sprint 7
+## 6. Sprint 7 (completado)
 
-Vistas de analítica incluidas en `migrations/202611060003_analytics_views.sql`. Después de
-ejecutarlas:
+Vistas de analítica en `migrations/202611060003_analytics_views.sql`, ejecutadas y verificadas.
+
+Flujo:
 
 1. Entra a **Configuración → Sincronización con Supabase**.
-2. Usa **Subir datos a Supabase** (solo administrador).
-3. Abre **Analítica** para ver ventas, utilidad, pagos, clientes e inventario.
+2. Usa **Subir datos a Supabase** (solo administrador). También se sincroniza automáticamente
+   después de cada cambio del admin.
+3. Usa **Descargar de Supabase** para hidratar un equipo nuevo (reemplaza la base local).
+4. Abre **Analítica** para ver ventas, utilidad, pagos, clientes e inventario, y exportar CSV.
 
-La sincronización es manual en esta fase; las escrituras operativas directas llegan en el
-Sprint 8.
+La operación sigue siendo local con un espejo a Supabase. Las escrituras operativas directas
+y el multiusuario real son el Sprint 8. Antes de producción, crea usuarios `cashier` e
+`inventory` y valida RLS con ellos.

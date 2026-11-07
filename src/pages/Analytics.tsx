@@ -4,12 +4,15 @@ import {
   AlertTriangle,
   BarChart3,
   CalendarDays,
+  Cloud,
+  Download,
   Package,
   RefreshCw,
   TrendingUp,
   Users,
   Wallet,
 } from 'lucide-react';
+import { useAppStore } from '../store/useAppStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -21,7 +24,10 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { cop } from '../utils/money';
 import { formatDate, formatDateOnly } from '../utils/date';
 import { paymentLabel } from '../utils/payments';
+import { downloadCSV, toCSV } from '../utils/csv';
 import { AnalyticsData, fetchAnalytics } from '../services/analytics.service';
+import { syncLocalDataToCloud } from '../services/cloud-migration.service';
+import { CLOUD_SYNC_STORAGE_KEY } from '../services/cloud-sync.service';
 
 const EMPTY_DATA: AnalyticsData = {
   salesDaily: [],
@@ -33,17 +39,30 @@ const EMPTY_DATA: AnalyticsData = {
 };
 
 export default function Analytics() {
+  const db = useAppStore(s => s.db);
   const profile = useAuthStore(s => s.profile);
   const navigate = useNavigate();
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [data, setData] = useState<AnalyticsData>(EMPTY_DATA);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState('');
   const [error, setError] = useState('');
+  const [lastSyncAt, setLastSyncAt] = useState<string | null>(() =>
+    localStorage.getItem(CLOUD_SYNC_STORAGE_KEY),
+  );
+
+  const invalidRange = Boolean(from && to && from > to);
 
   const load = useCallback(async () => {
     if (!profile?.store_id) {
       setLoading(false);
+      return;
+    }
+    if (from && to && from > to) {
+      setLoading(false);
+      setError('La fecha inicial no puede ser posterior a la fecha final.');
       return;
     }
 
@@ -70,7 +89,11 @@ export default function Analytics() {
   }, [load]);
 
   useEffect(() => {
-    const onCloudSync = () => void load();
+    const onCloudSync = (event: Event) => {
+      const detail = (event as CustomEvent<{ at?: string }>).detail;
+      setLastSyncAt(detail?.at ?? new Date().toISOString());
+      void load();
+    };
     window.addEventListener('drogueria:cloud-sync', onCloudSync);
     return () => window.removeEventListener('drogueria:cloud-sync', onCloudSync);
   }, [load]);
@@ -87,6 +110,122 @@ export default function Analytics() {
       margin: totalSales ? grossProfit / totalSales : 0,
     };
   }, [data.salesDaily]);
+
+  const handleSync = async () => {
+    if (!profile?.organization_id || !profile.store_id) return;
+    setSyncing(true);
+    setSyncMessage('');
+    try {
+      await syncLocalDataToCloud(db, {
+        organizationId: profile.organization_id,
+        storeId: profile.store_id,
+        userId: profile.id,
+      });
+      const at = new Date().toISOString();
+      localStorage.setItem(CLOUD_SYNC_STORAGE_KEY, at);
+      setLastSyncAt(at);
+      setSyncMessage('Datos sincronizados con Supabase');
+      await load();
+    } catch (cause) {
+      setSyncMessage(
+        cause instanceof Error ? cause.message : 'No se pudieron sincronizar los datos',
+      );
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const suffix = from || to ? `${from || 'inicio'}_${to || 'hoy'}` : 'historico';
+  const exportSales = () => {
+    downloadCSV(
+      `analitica-ventas-${suffix}.csv`,
+      toCSV(
+        data.salesDaily.map(row => ({
+          dia: row.day,
+          ventas: row.sales_count,
+          ventas_totales: row.total_sales,
+          ticket_promedio: row.average_ticket,
+          utilidad: row.gross_profit,
+        })),
+      ),
+    );
+  };
+
+  const exportProducts = () => {
+    downloadCSV(
+      `analitica-productos-${suffix}.csv`,
+      toCSV(
+        data.productPerformance.map(row => ({
+          producto: row.product_name,
+          categoria: row.category,
+          unidades: row.quantity,
+          ingresos: row.revenue,
+          costo: row.cost,
+          utilidad: row.profit,
+        })),
+      ),
+    );
+  };
+
+  const exportCategories = () => {
+    downloadCSV(
+      `analitica-categorias-${suffix}.csv`,
+      toCSV(
+        data.categoryPerformance.map(row => ({
+          categoria: row.category,
+          unidades: row.quantity,
+          ingresos: row.revenue,
+          costo: row.cost,
+          utilidad: row.profit,
+        })),
+      ),
+    );
+  };
+
+  const exportPayments = () => {
+    downloadCSV(
+      `analitica-pagos-${suffix}.csv`,
+      toCSV(
+        data.paymentMix.map(row => ({
+          metodo: paymentLabel(row.method),
+          ventas: row.sales_count,
+          total: row.total,
+        })),
+      ),
+    );
+  };
+
+  const exportCustomers = () => {
+    downloadCSV(
+      `analitica-clientes-${suffix}.csv`,
+      toCSV(
+        data.customerSummary.map(row => ({
+          cliente: row.name,
+          telefono: row.phone ?? '',
+          compras: row.sales_count,
+          total: row.total_spent,
+          ultima_compra: row.last_purchase_at ?? '',
+        })),
+      ),
+    );
+  };
+
+  const exportInventory = () => {
+    downloadCSV(
+      `analitica-inventario-${suffix}.csv`,
+      toCSV(
+        data.inventoryRisk.map(row => ({
+          producto: row.commercial_name,
+          categoria: row.category,
+          stock: row.stock,
+          minimo: row.min_stock,
+          proximos_30_dias: row.expiring_30d,
+          vencidos: row.expired_units,
+          proximo_vencimiento: row.next_expiry ?? '',
+        })),
+      ),
+    );
+  };
 
   if (!profile?.store_id) {
     return (
@@ -126,6 +265,7 @@ export default function Analytics() {
               max={to || undefined}
               onChange={event => setFrom(event.target.value)}
               className="w-44"
+              aria-invalid={invalidRange || undefined}
             />
             <Input
               label="Hasta"
@@ -134,6 +274,7 @@ export default function Analytics() {
               min={from || undefined}
               onChange={event => setTo(event.target.value)}
               className="w-44"
+              aria-invalid={invalidRange || undefined}
             />
             {(from || to) && (
               <Button
@@ -157,12 +298,72 @@ export default function Analytics() {
             El filtro de fechas aplica a ventas por día.
           </p>
         </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
+          {profile.role === 'admin' && (
+            <Button size="sm" onClick={() => void handleSync()} disabled={syncing}>
+              <Cloud className={`h-4 w-4 ${syncing ? 'animate-pulse' : ''}`} />
+              {syncing ? 'Sincronizando…' : 'Sincronizar ahora'}
+            </Button>
+          )}
+          <Button variant="secondary" size="sm" onClick={exportSales}>
+            <Download className="h-4 w-4" />
+            Ventas CSV
+          </Button>
+          <Button variant="secondary" size="sm" onClick={exportProducts}>
+            <Download className="h-4 w-4" />
+            Productos CSV
+          </Button>
+          <Button variant="secondary" size="sm" onClick={exportCategories}>
+            <Download className="h-4 w-4" />
+            Categorías CSV
+          </Button>
+          <Button variant="secondary" size="sm" onClick={exportPayments}>
+            <Download className="h-4 w-4" />
+            Pagos CSV
+          </Button>
+          <Button variant="secondary" size="sm" onClick={exportCustomers}>
+            <Download className="h-4 w-4" />
+            Clientes CSV
+          </Button>
+          <Button variant="secondary" size="sm" onClick={exportInventory}>
+            <Download className="h-4 w-4" />
+            Inventario CSV
+          </Button>
+        </div>
+
+        <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-400">
+          <span>
+            Última sincronización:{' '}
+            <strong className="text-slate-600">
+              {lastSyncAt ? formatDate(lastSyncAt) : 'Nunca'}
+            </strong>
+          </span>
+          {syncMessage && (
+            <span
+              className={
+                syncMessage.startsWith('No se') || syncMessage.includes('error')
+                  ? 'text-red-600'
+                  : 'text-emerald-600'
+              }
+            >
+              {syncMessage}
+            </span>
+          )}
+        </div>
+
+        {invalidRange && (
+          <p role="alert" className="mt-2 text-xs font-medium text-red-600">
+            La fecha inicial no puede ser posterior a la fecha final.
+          </p>
+        )}
+
         <p className="mt-2 text-xs text-slate-400">
-          Si no ves tus ventas, sincroniza los datos locales desde{' '}
+          Si no ves tus ventas, usa “Sincronizar ahora” o{' '}
           <Link to="/configuracion" className="font-semibold text-brand-600 hover:underline">
             Configuración
           </Link>
-          .
+          . Los cambios locales se sincronizan automáticamente.
         </p>
       </section>
 

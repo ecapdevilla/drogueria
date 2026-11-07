@@ -1,4 +1,5 @@
 import { DBShape, Sale } from '../types';
+import { emptyDB, SCHEMA_VERSION } from '../types/schema';
 import { supabase } from '../lib/supabase';
 
 export interface CloudContext {
@@ -349,5 +350,264 @@ export async function syncLocalDataToCloud(
     expenses: data.expenses.length,
     returns: data.returns.length,
     movements: data.movements.length,
+  };
+}
+
+const isoDate = (value: string | null) =>
+  value ? (value.includes('T') ? value : `${value}T00:00:00.000Z`) : '';
+
+async function fetchRows(
+  table: string,
+  column: string,
+  value: string,
+): Promise<Record<string, any>[]> {
+  const { data, error } = await supabase!.from(table).select('*').eq(column, value);
+  if (error) throw new Error(`${table}: ${error.message}`);
+  return (data ?? []) as Record<string, any>[];
+}
+
+async function fetchAllRows(table: string): Promise<Record<string, any>[]> {
+  const { data, error } = await supabase!.from(table).select('*');
+  if (error) throw new Error(`${table}: ${error.message}`);
+  return (data ?? []) as Record<string, any>[];
+}
+
+function groupBy<T>(rows: T[], key: (row: T) => string): Map<string, T[]> {
+  const map = new Map<string, T[]>();
+  for (const row of rows) {
+    const value = key(row);
+    const list = map.get(value) ?? [];
+    list.push(row);
+    map.set(value, list);
+  }
+  return map;
+}
+
+/** Lee la base normalizada de Supabase y la convierte al DBShape local. */
+export async function loadCloudData(context: CloudContext): Promise<DBShape> {
+  if (!supabase) throw new Error('Supabase no está configurado');
+
+  const { organizationId, storeId } = context;
+
+  const [
+    suppliersRows,
+    productsRows,
+    lotsRows,
+    customersRows,
+    salesRows,
+    purchasesRows,
+    cashRows,
+    expensesRows,
+    returnsRows,
+    movementsRows,
+    saleItemsRows,
+    paymentsRows,
+    purchaseItemsRows,
+    returnItemsRows,
+    settingsResult,
+  ] = await Promise.all([
+    fetchRows('suppliers', 'organization_id', organizationId),
+    fetchRows('products', 'store_id', storeId),
+    fetchRows('lots', 'store_id', storeId),
+    fetchRows('customers', 'store_id', storeId),
+    fetchRows('sales', 'store_id', storeId),
+    fetchRows('purchases', 'store_id', storeId),
+    fetchRows('cash_sessions', 'store_id', storeId),
+    fetchRows('expenses', 'store_id', storeId),
+    fetchRows('returns', 'store_id', storeId),
+    fetchRows('movements', 'store_id', storeId),
+    fetchAllRows('sale_items'),
+    fetchAllRows('payments'),
+    fetchAllRows('purchase_items'),
+    fetchAllRows('return_items'),
+    supabase.from('app_settings').select('*').eq('store_id', storeId).maybeSingle(),
+  ]);
+
+  if (settingsResult.error) throw new Error(`app_settings: ${settingsResult.error.message}`);
+
+  const saleItemsBySale = groupBy(saleItemsRows, row => String(row.sale_id));
+  const paymentsBySale = groupBy(paymentsRows, row => String(row.sale_id));
+  const purchaseItemsByPurchase = groupBy(purchaseItemsRows, row => String(row.purchase_id));
+  const returnItemsByReturn = groupBy(returnItemsRows, row => String(row.return_id));
+
+  const suppliers = suppliersRows.map(row => ({
+    id: String(row.id),
+    name: String(row.name),
+    taxId: row.tax_id ?? undefined,
+    contact: row.contact ?? undefined,
+    phone: row.phone ?? undefined,
+    email: row.email ?? undefined,
+    address: row.address ?? undefined,
+    active: row.active !== false,
+    createdAt: row.created_at ?? undefined,
+  }));
+
+  const products = productsRows.map(row => ({
+    id: String(row.id),
+    internalCode: String(row.internal_code ?? ''),
+    barcode: String(row.barcode ?? ''),
+    commercialName: String(row.commercial_name),
+    category: String(row.category ?? 'General'),
+    purchasePrice: Number(row.purchase_price ?? 0),
+    salePrice: Number(row.sale_price ?? 0),
+    stock: Number(row.stock ?? 0),
+    minStock: Number(row.min_stock ?? 0),
+    active: row.active !== false,
+    genericName: row.generic_name ?? undefined,
+    activeIngredient: row.active_ingredient ?? undefined,
+    concentration: row.concentration ?? undefined,
+    presentation: row.presentation ?? undefined,
+    pharmaceuticalForm: row.pharmaceutical_form ?? undefined,
+    invimaRegistry: row.invima_registry ?? undefined,
+    mainSupplierId: row.main_supplier_id ?? undefined,
+    storageConditions: row.storage_conditions ?? undefined,
+    createdAt: row.created_at,
+  }));
+
+  const lots = lotsRows.map(row => ({
+    id: String(row.id),
+    productId: String(row.product_id),
+    code: String(row.code ?? ''),
+    quantity: Number(row.quantity ?? 0),
+    purchaseCost: Number(row.purchase_cost ?? 0),
+    expiryDate: isoDate(row.expiry_date),
+    enabled: row.enabled !== false,
+    createdAt: row.created_at,
+  }));
+
+  const customers = customersRows.map(row => ({
+    id: String(row.id),
+    name: String(row.name),
+    phone: row.phone ?? undefined,
+    identification: row.identification ?? undefined,
+    createdAt: row.created_at,
+  }));
+
+  const sales = salesRows.map(row => {
+    const items = (saleItemsBySale.get(String(row.id)) ?? []).map(item => ({
+      productId: String(item.product_id ?? 'producto-eliminado'),
+      productName: String(item.product_name),
+      quantity: Number(item.quantity ?? 0),
+      unitPrice: Number(item.unit_price ?? 0),
+      unitCost: Number(item.unit_cost ?? 0),
+      lotId: item.lot_id ?? undefined,
+      discount: Number(item.discount ?? 0) || undefined,
+    }));
+    const payments = (paymentsBySale.get(String(row.id)) ?? []).map(payment => ({
+      method: payment.method,
+      amount: Number(payment.amount ?? 0),
+    }));
+
+    return {
+      id: String(row.id),
+      items,
+      subtotal: Number(row.subtotal ?? 0),
+      discount: Number(row.discount ?? 0),
+      total: Number(row.total ?? 0),
+      paymentMethod: row.payment_method,
+      payments: payments.length ? payments : undefined,
+      cashReceived:
+        row.cash_received !== null && row.cash_received !== undefined
+          ? Number(row.cash_received)
+          : undefined,
+      change:
+        row.change_amount !== null && row.change_amount !== undefined
+          ? Number(row.change_amount)
+          : undefined,
+      customerId: row.customer_id ?? undefined,
+      createdAt: row.created_at,
+      returned: row.returned || undefined,
+    };
+  });
+
+  const purchases = purchasesRows.map(row => ({
+    id: String(row.id),
+    supplierId: String(row.supplier_id ?? 'proveedor-eliminado'),
+    invoiceRef: String(row.invoice_ref ?? ''),
+    total: Number(row.total ?? 0),
+    items: (purchaseItemsByPurchase.get(String(row.id)) ?? []).map(item => ({
+      productId: String(item.product_id ?? 'producto-eliminado'),
+      quantity: Number(item.quantity ?? 0),
+      unitCost: Number(item.unit_cost ?? 0),
+      lotCode: String(item.lot_code ?? ''),
+      expiryDate: isoDate(item.expiry_date),
+    })),
+    date: isoDate(row.date),
+    createdAt: row.created_at,
+  }));
+
+  const cashSessions = cashRows.map(row => ({
+    id: String(row.id),
+    initialAmount: Number(row.initial_amount ?? 0),
+    openedAt: row.opened_at,
+    closedAt: row.closed_at ?? undefined,
+    countedAmount:
+      row.counted_amount !== null && row.counted_amount !== undefined
+        ? Number(row.counted_amount)
+        : undefined,
+    expectedAmount:
+      row.expected_amount !== null && row.expected_amount !== undefined
+        ? Number(row.expected_amount)
+        : undefined,
+    difference:
+      row.difference_amount !== null && row.difference_amount !== undefined
+        ? Number(row.difference_amount)
+        : undefined,
+    status: row.status,
+  }));
+
+  const expenses = expensesRows.map(row => ({
+    id: String(row.id),
+    category: String(row.category),
+    description: String(row.description),
+    amount: Number(row.amount ?? 0),
+    paymentMethod: row.payment_method,
+    notes: row.notes ?? undefined,
+    date: isoDate(row.date),
+    createdAt: row.created_at,
+  }));
+
+  const returns = returnsRows.map(row => ({
+    id: String(row.id),
+    saleId: String(row.sale_id),
+    reason: String(row.reason),
+    restock: row.restock !== false,
+    items: (returnItemsByReturn.get(String(row.id)) ?? []).map(item => ({
+      productId: String(item.product_id ?? 'producto-eliminado'),
+      quantity: Number(item.quantity ?? 0),
+    })),
+    createdAt: row.created_at,
+  }));
+
+  const movements = movementsRows.map(row => ({
+    id: String(row.id),
+    productId: String(row.product_id),
+    lotId: String(row.lot_id ?? 'lote-eliminado'),
+    type: row.type,
+    quantity: Number(row.quantity ?? 0),
+    refId: row.ref_id ?? undefined,
+    reason: row.reason ?? undefined,
+    note: row.note ?? undefined,
+    createdAt: row.created_at,
+  }));
+
+  const db = emptyDB();
+  return {
+    ...db,
+    version: SCHEMA_VERSION,
+    settings: {
+      backupReminderDays: settingsResult.data?.backup_reminder_days ?? 7,
+      lastBackupAt: settingsResult.data?.last_backup_at ?? undefined,
+    },
+    suppliers,
+    products,
+    lots,
+    customers,
+    sales,
+    purchases,
+    cashSessions,
+    expenses,
+    returns,
+    movements,
   };
 }

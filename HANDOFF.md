@@ -31,7 +31,7 @@ Zod 4 · React Hook Form 7 · Vitest 2 + Testing Library.
 | Fase 2 · Sprint 4 (Reportes que sirven para decidir) | ✅ Completo y verificado |
 | **Fase 2 · Sprint 5 (Durabilidad y PWA)** | ✅ **Completo y verificado** |
 | **Fase 3 · Sprint 6 (Supabase, auth y roles)** | ✅ **Completo y verificado** |
-| **Fase 3 · Sprint 7 (Datos y analítica)** | 🚧 **En curso** |
+| **Fase 3 · Sprint 7 (Datos y analítica)** | ✅ **Completo** (RLS por rol pendiente en Sprint 8) |
 
 ### Verificación de la última sesión (2026-11-06)
 
@@ -39,12 +39,14 @@ Zod 4 · React Hook Form 7 · Vitest 2 + Testing Library.
 | --- | --- |
 | `npm run typecheck` | ✅ Sin errores |
 | `npm run lint` | ✅ Sin errores ni warnings |
-| `npm run test` | ✅ **185/185 pruebas en 23 archivos** |
-| `npm run build` | ✅ Build de producción generado (incluye manifest, iconos y `sw.js`) |
+| `npm run test` | ✅ **186/186 pruebas en 23 archivos** |
+| `npm run build` | ✅ Build de producción generado; chunks `vendor`, `supabase` e `index` bajo 500 kB |
 | `npm run test:e2e` | ✅ **5/5** (venta, compra, devolución, respaldo y sincronización entre pestañas) |
 | `npm run test:e2e:pwa` | ✅ **1/1** (manifest, service worker y recarga offline sobre el build) |
-| Supabase | ✅ Migraciones y seed ejecutados; login real con `estiben.capdevilla@gmail.com` (rol `admin`), organización/sucursal visibles y RLS bloqueando anónimos |
-| Smoke test navegador | ✅ Respaldo descargado (JSON v2 con `settings.lastBackupAt`), recordatorio desaparece, migración real v1→v2 en `localStorage` y demo restaurada |
+| Supabase | ✅ Login admin, RLS anónimo, 7 vistas de analítica, sync manual/automática y descarga desde la nube |
+| Lighthouse | ✅ **100 accesibilidad / 100 best practices / 100 SEO** en Configuración y Analítica |
+| Smoke test Supabase | ✅ Datos demo, 2 ventas sincronizadas, `v_sales_daily` con $3.000, utilidad $1.400, analítica y CSV |
+| Smoke test navegador | ✅ Respaldo descargado, migración v1→v2, demo restaurada y CSV de analítica |
 
 ---
 
@@ -163,10 +165,13 @@ src/
 
 ## 6. Estado de Git
 
-- Rama: **`master`**, un solo commit inicial (`6e0b964`).
-- **Fase 0 + Fase 1 + Sprints 1, 2, 3, 4 y 5 de Fase 2 están SIN COMMIT.**
+- Rama de trabajo: **`fase-3-supabase`**.
+- Commit base: **`1167b1c`** (`feat: fase 2 completa y base de fase 3 con Supabase`).
+- Fase 0, Fase 1, Fase 2 y el Sprint 6/7 de Fase 3 están **commiteados localmente** en esa rama.
+- `master` sigue en el commit inicial `6e0b964`; **no se hizo push**.
 - El directorio padre (`Downloads`) **no** es un repo; el repo está dentro del proyecto.
 - Los archivos `deepseek_*.ts(x)` de la raíz están fuera del build y del lint.
+- `.env.local` está ignorado por Git; nunca se sube la `anon key` ni secretos.
 
 > Si el usuario pide commitear, propone mensajes por fase/sprint, por ejemplo:
 > `feat(fase-2): proveedores y compras completas`
@@ -274,42 +279,57 @@ Los cinco sprints de la Fase 2 (Track A, sin backend) están cerrados.
 - [x] `.env.local` con `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` y `VITE_AUTH_ENABLED=true`.
 - [x] Login real verificado: perfil `admin`, organización y sucursal visibles.
 - [x] RLS verificado con anónimo: `profiles`, `organizations`, `stores` y `products` devuelven `[]`.
-- [ ] Probar RLS con un usuario `cashier` y otro `inventory` (se hará con datos reales en Sprint 7).
+- [ ] Probar RLS con un usuario `cashier` y otro `inventory` (Sprint 8).
 
-### 🚧 Sprint 7 — Datos y analítica
+### ✅ Sprint 7 — Datos y analítica
 
 - [x] Vistas SQL de analítica en `supabase/migrations/202611060003_analytics_views.sql`:
   `v_sales_daily`, `v_product_performance`, `v_category_performance`, `v_payment_mix`,
   `v_customer_summary`, `v_inventory_risk` y `v_cash_summary`.
+- [x] Migración `003` ejecutada y verificada en Supabase.
 - [x] Servicio de migración local → Supabase (`cloud-migration.service.ts`) con mapeo de
   todas las entidades y generación de pagos para ventas antiguas.
-- [x] Botón **“Subir datos a Supabase”** en Configuración (solo admin) con confirmación,
+- [x] **Descarga desde Supabase** (`loadCloudData`) para hidratar un equipo nuevo.
+- [x] Botones **Subir** y **Descargar** en Configuración (solo admin), con confirmación,
   conteos y manejo de errores.
+- [x] **Sincronización automática** para administradores con debounce de 1,5 s.
 - [x] Pantalla **Analítica** (`/analitica`) con filtro de fechas, KPIs, ventas por día,
   utilidad por producto/categoría, medios de pago, mejores clientes y riesgo de inventario.
-- [ ] Ejecutar `202611060003_analytics_views.sql` en Supabase.
-- [ ] Probar la sincronización con datos demo/ventas y verificar las vistas con la sesión admin.
-- [ ] Probar RLS de `cashier` e `inventory`.
+- [x] Exportaciones CSV de analítica y botón **Sincronizar ahora**.
+- [x] Smoke test real: 2 ventas, $3.000, utilidad $1.400 y pagos en efectivo.
+- [x] Lighthouse 100/100/100 en Configuración y Analítica.
+- [x] Configuración de Vercel (`vercel.json`, `.vercelignore`, `DEPLOY_VERCEL.md`).
+- [ ] Probar RLS de `cashier` e `inventory` (requiere crear esos usuarios).
 - [ ] Conectar las escrituras operativas directamente a Supabase (Sprint 8).
 
-### Siguientes sprints
+### Sprint 8 — Operación multiusuario real
 
-- **Sprint 7:** migración de datos locales a Supabase y vistas/dashboards de analítica.
-- **Sprint 8:** WhatsApp manual con enlaces `wa.me` (sin costos de API).
-- **Sprint 9:** WhatsApp Cloud API + IA opcional (DeepSeek/Claude).
-- **Sprint 10:** cierre, E2E completos y despliegue en Vercel.
+Objetivo: dejar de depender del espejo de base completa y escribir directo en Supabase.
+
+- RPC transaccional `create_sale` (FEFO, stock, pagos, movimientos y numeración).
+- RPC `create_purchase`, `adjust_lot` y `process_return`.
+- Escrituras directas desde POS, compras, inventario, caja, gastos y devoluciones.
+- Cola offline y resolución de conflictos.
+- Pruebas RLS con `cashier` e `inventory`.
+- Despliegue real en Vercel y validación en producción.
+
+### Siguientes fases
+
+- **Sprint 9:** WhatsApp manual (`wa.me`) y, si se aprueba, Cloud API + IA opcional.
+- **Sprint 10:** cierre, E2E completos, monitoreo y optimización.
 
 ### Inmediato
-- [x] Ejecutar `supabase/migrations/001` y `002` + `seed.sql`.
+- [x] Ejecutar migraciones `001`, `002`, `003` + `seed.sql`.
 - [x] Crear el usuario admin y ejecutar `public.bootstrap_admin('correo')`.
-- [x] Configurar `.env.local` con la `anon key` y probar el login real.
-- [ ] Ejecutar `supabase/migrations/202611060003_analytics_views.sql`.
-- [ ] Cargar datos demo/ventas y usar **Configuración → Subir datos a Supabase**.
-- [ ] Verificar la pantalla **Analítica** con la sesión admin.
-- [ ] Probar RLS con usuarios `cashier` e `inventory`.
+- [x] Configurar `.env.local` y probar el login real.
+- [x] Cargar datos demo/ventas, sincronizar y verificar las vistas.
+- [x] Verificar la pantalla **Analítica** y las exportaciones CSV.
+- [x] Lighthouse y configuración de Vercel.
+- [ ] Crear usuarios `cashier` e `inventory` y probar RLS.
+- [ ] Iniciar Sprint 8 (escrituras directas/RPC).
 - [ ] Revisar `npm audit` y decidir si actualizar dependencias.
-- [ ] Decidir si se hace commit (por sprint o todo junto).
-- [ ] Definir cuenta/dominio de Vercel para el despliegue.
+- [ ] Desplegar en Vercel con las variables de entorno.
+- [ ] Decidir si se hace commit/push adicional (la rama ya tiene un commit).
 
 **Antes de empezar un sprint:** confirmar alcance con el usuario y anotarlo aquí.
 
@@ -320,27 +340,31 @@ Los cinco sprints de la Fase 2 (Track A, sin backend) están cerrados.
 1. Lee `AGENTS.md` y este `HANDOFF.md`.
 2. Ejecuta `git status` para ver qué cambió desde la última vez.
 3. Corre `npm run typecheck && npm run lint && npm run test` para confirmar la base.
-4. Revisa la sección **7.1 Fase 3**: el **Sprint 6 está completo** y el **Sprint 7 en curso**.
-5. El siguiente paso es ejecutar la migración `202611060003_analytics_views.sql` y sincronizar
-   datos desde Configuración.
+4. Revisa la sección **7.1 Fase 3**: los Sprints 6 y 7 están completos.
+5. El siguiente paso es el **Sprint 8**: escrituras operativas directas a Supabase y RLS de
+   `cashier`/`inventory`.
 6. Recuerda que `.env.local` no se commitea y contiene la `anon key`.
+7. La rama de trabajo es `fase-3-supabase`; no se hizo push.
 
 ---
 
 ## 9. Bitácora
 
-### 2026-11-06 — Fase 3 · Sprint 7 en curso (datos y analítica)
-- Vistas SQL de analítica con `security_invoker` para respetar RLS.
-- Servicio de migración local → Supabase con mapeo de productos, lotes, clientes, ventas,
-  pagos, compras, caja, gastos, devoluciones y movimientos.
-- Configuración: botón **Subir datos a Supabase** (solo administrador) con confirmación,
-  conteos y errores; no borra los datos locales.
-- Nueva pantalla **Analítica** con filtro de fechas y tablas de ventas, utilidad, pagos,
-  clientes e inventario.
-- Los E2E se aislaron en modo local (`VITE_AUTH_ENABLED=false`) para no depender de Supabase.
-- Pruebas: **185/185 en 23 archivos**, **5/5 E2E** y **1/1 PWA**.
-- Pendiente: ejecutar la migración `003`, sincronizar datos y verificar las vistas y el RLS
-  de `cashier`/`inventory`. Sin commit.
+### 2026-11-06 — Fase 3 · Sprint 7 completado (datos y analítica)
+- Vistas SQL de analítica con `security_invoker`, ejecutadas y verificadas en Supabase.
+- Servicio de migración local → Supabase y **descarga** desde Supabase (`loadCloudData`).
+- **Sincronización automática** para admin con debounce de 1,5 s y cola simple.
+- Configuración: botones **Subir** y **Descargar**, con confirmación, conteos y errores.
+- Pantalla **Analítica** con filtro de fechas, KPIs, ventas, utilidad, pagos, clientes,
+  inventario, **6 exportaciones CSV**, **Sincronizar ahora** y última sincronización.
+- Smoke test real: 2 ventas, $3.000, utilidad $1.400; vistas y CSV correctos.
+- E2E aislados en modo local (`VITE_AUTH_ENABLED=false`) para no depender de Supabase.
+- Lighthouse: **100 accesibilidad / 100 best practices / 100 SEO** en Configuración y Analítica.
+- Bundle dividido en `vendor`, `supabase` e `index`; sin warning de 500 kB.
+- Vercel listo: `vercel.json`, `.vercelignore`, `README.md`, `DEPLOY_VERCEL.md`.
+- Pruebas: **186/186 en 23 archivos**, **5/5 E2E** y **1/1 PWA**.
+- Pendiente: usuarios `cashier`/`inventory` y escrituras operativas directas (Sprint 8).
+- Commit local `1167b1c` en la rama `fase-3-supabase`; sin push.
 
 ### 2026-11-06 — Fase 3 · Sprint 6 completado
 - Migraciones, RLS y seed ejecutados en el proyecto Supabase **drogueria**.
@@ -540,14 +564,21 @@ Los cinco sprints de la Fase 2 (Track A, sin backend) están cerrados.
 - **Claves:** solo `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` pueden estar en el
   frontend. La `service_role` key se usa únicamente en servidor (Vercel Functions) y nunca
   se sube al repo ni se comparte por chat.
-- **Migración de datos:** el Sprint 7 conectará los servicios actuales a Supabase; hasta
-  entonces el modo local sigue siendo la fuente de verdad para la operación.
+- **Migración de datos:** los servicios operativos siguen usando `localStorage`; Supabase
+  recibe un espejo para analítica y respaldo. Las escrituras directas son el Sprint 8.
 - **WhatsApp:** fuera de alcance en esta fase; no se instalaron dependencias de Meta.
 - **Analítica:** las vistas SQL están en `supabase/migrations/202611060003_analytics_views.sql`
-  y usan `security_invoker` para respetar RLS. La pantalla `/analitica` consulta esas vistas;
-  si no están ejecutadas, muestra un error explicativo.
-- **Sincronización local → Supabase:** el botón de Configuración sube los datos locales
-  (upsert) y reemplaza los hijos de ventas/compras/devoluciones. Es una migración/sincronización
-  manual, no el flujo operativo definitivo. Las escrituras directas llegan en el Sprint 8.
-- **Bundle:** `@supabase/supabase-js` elevó el chunk principal por encima de 500 kB
-  (~205 kB gzip). Funciona, pero conviene code-splitting en una fase de optimización.
+  y usan `security_invoker` para respetar RLS. La pantalla `/analitica` consulta esas vistas
+  y permite exportar CSV.
+- **Sincronización local → Supabase:** automática para administradores (debounce 1,5 s) y
+  manual desde Configuración. También existe **Descargar de Supabase** para hidratar un equipo
+  nuevo; reemplaza la base local y pide confirmación.
+- **Concurrencia:** el espejo es de base completa y last-write-wins. No es multiusuario real;
+  eso se resuelve con RPCs transaccionales en Sprint 8.
+- **Usuarios:** `cashier` e `inventory` ven la app y RLS los limita, pero sus cambios locales
+  aún no se sincronizan automáticamente. Falta probarlos con usuarios reales.
+- **Bundle:** dividido en `vendor`, `supabase` e `index`; cada chunk queda bajo 500 kB.
+- **SEO/privacidad:** `robots.txt` con `Disallow: /` y `meta robots noindex` porque es una
+  app privada. Lighthouse dio 100/100/100 en Configuración y Analítica.
+- **Vercel:** `vercel.json` incluye rewrites SPA y cabeceras para `sw.js`/manifest/assets.
+  La guía está en `DEPLOY_VERCEL.md`; no se desplegó desde este entorno.

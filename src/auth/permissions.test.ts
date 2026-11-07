@@ -38,6 +38,12 @@ describe('permisos por rol', () => {
     expect(canAccessPath('inventory', '/reportes')).toBe(true);
   });
 
+  it('Analítica queda reservada al administrador', () => {
+    expect(canAccessPath('admin', '/analitica')).toBe(true);
+    expect(canAccessPath('cashier', '/analitica')).toBe(false);
+    expect(canAccessPath('inventory', '/analitica')).toBe(false);
+  });
+
   it('sin rol no hay acceso', () => {
     expect(canAccessPath(null, '/')).toBe(false);
     expect(canAccessPath(undefined, '/pos')).toBe(false);

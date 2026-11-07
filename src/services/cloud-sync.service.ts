@@ -3,6 +3,7 @@ import { isAuthEnabled } from '../lib/supabase';
 import { useAuthStore } from '../store/useAuthStore';
 import { syncLocalDataToCloud } from './cloud-migration.service';
 
+export const CLOUD_SYNC_STORAGE_KEY = 'drogueria_last_cloud_sync';
 const AUTO_SYNC_DELAY = 1500;
 
 let timer: ReturnType<typeof setTimeout> | null = null;
@@ -31,9 +32,11 @@ async function flush() {
 
   try {
     await syncLocalDataToCloud(db, context);
+    const at = new Date().toISOString();
+    localStorage.setItem(CLOUD_SYNC_STORAGE_KEY, at);
     window.dispatchEvent(
       new CustomEvent('drogueria:cloud-sync', {
-        detail: { ok: true, at: new Date().toISOString() },
+        detail: { ok: true, at },
       }),
     );
   } catch (error) {

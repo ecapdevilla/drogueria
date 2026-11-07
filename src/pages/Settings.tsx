@@ -17,8 +17,13 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { PageHeader } from '../components/layout/PageHeader';
 import { DBShape } from '../types/schema';
 import { backupStatus, parseBackup, StorageService } from '../services/storage.service';
-import { CloudSyncResult, syncLocalDataToCloud } from '../services/cloud-migration.service';
+import {
+  CloudSyncResult,
+  loadCloudData,
+  syncLocalDataToCloud,
+} from '../services/cloud-migration.service';
 import { isAuthEnabled } from '../lib/supabase';
+import { CLOUD_SYNC_STORAGE_KEY } from '../services/cloud-sync.service';
 import { cop } from '../utils/money';
 import { formatDate } from '../utils/date';
 
@@ -36,6 +41,8 @@ export default function Settings() {
   const [resetOpen, setResetOpen] = useState(false);
   const [cloudOpen, setCloudOpen] = useState(false);
   const [cloudLoading, setCloudLoading] = useState(false);
+  const [cloudDownload, setCloudDownload] = useState<DBShape | null>(null);
+  const [cloudDownloadLoading, setCloudDownloadLoading] = useState(false);
   const [cloudResult, setCloudResult] = useState<CloudSyncResult | null>(null);
   const [cloudError, setCloudError] = useState('');
 
@@ -76,6 +83,30 @@ export default function Settings() {
     setPending(null);
   };
 
+  const handleCloudDownload = async () => {
+    if (!profile?.organization_id || !profile.store_id) {
+      setCloudError('Tu perfil no tiene organización o sucursal asignada.');
+      return;
+    }
+
+    setCloudDownloadLoading(true);
+    setCloudError('');
+    try {
+      const loaded = await loadCloudData({
+        organizationId: profile.organization_id,
+        storeId: profile.store_id,
+        userId: profile.id,
+      });
+      setCloudDownload(loaded);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'No se pudieron descargar los datos';
+      setCloudError(message);
+      pushToast(message, 'error');
+    } finally {
+      setCloudDownloadLoading(false);
+    }
+  };
+
   const handleCloudSync = async () => {
     if (!profile?.organization_id || !profile.store_id) {
       setCloudError('Tu perfil no tiene organización o sucursal asignada.');
@@ -92,7 +123,9 @@ export default function Settings() {
         userId: profile.id,
       });
       setCloudResult(result);
-      window.dispatchEvent(new CustomEvent('drogueria:cloud-sync', { detail: { ok: true } }));
+      const at = new Date().toISOString();
+      localStorage.setItem(CLOUD_SYNC_STORAGE_KEY, at);
+      window.dispatchEvent(new CustomEvent('drogueria:cloud-sync', { detail: { ok: true, at } }));
       pushToast('Datos sincronizados con Supabase', 'success');
     } catch (error) {
       const message =
@@ -230,6 +263,14 @@ export default function Settings() {
                   <Cloud className="h-4 w-4" />
                   {cloudLoading ? 'Sincronizando…' : 'Subir datos a Supabase'}
                 </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => void handleCloudDownload()}
+                  disabled={cloudDownloadLoading}
+                >
+                  <Download className="h-4 w-4" />
+                  {cloudDownloadLoading ? 'Descargando…' : 'Descargar de Supabase'}
+                </Button>
                 <Button variant="secondary" onClick={() => navigate('/analitica')}>
                   Ver analítica
                 </Button>
@@ -339,6 +380,22 @@ export default function Settings() {
         message={`Se subirán ${db.products.length} productos, ${db.sales.length} ventas, ${db.purchases.length} compras y ${db.expenses.length} gastos a la nube. Los datos locales no se borran.`}
         onConfirm={() => void handleCloudSync()}
         onClose={() => setCloudOpen(false)}
+      />
+
+      <ConfirmDialog
+        open={cloudDownload !== null}
+        title="Descargar datos de Supabase"
+        confirmLabel="Reemplazar datos locales"
+        message={
+          cloudDownload
+            ? `Se reemplazarán los datos locales por ${cloudDownload.products.length} productos, ${cloudDownload.sales.length} ventas, ${cloudDownload.purchases.length} compras y ${cloudDownload.expenses.length} gastos de Supabase. Descarga un respaldo antes si tienes cambios locales sin sincronizar.`
+            : ''
+        }
+        onConfirm={() => {
+          if (cloudDownload) replaceDB(cloudDownload);
+          setCloudDownload(null);
+        }}
+        onClose={() => setCloudDownload(null)}
       />
     </div>
   );

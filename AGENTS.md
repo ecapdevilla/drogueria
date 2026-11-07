@@ -83,6 +83,14 @@ y se persiste en `localStorage` bajo la clave `drogueria_db_v1`.
     reemplaza los hijos de ventas/compras/devoluciones. Es una herramienta de migración
     (admin), no el flujo operativo definitivo. No la ejecutes en cada render ni la uses para
     escrituras concurrentes.
+29. **Auto-sync.** `cloud-sync.service.ts` agenda un espejo con debounce después de cada
+    `save()` solo si el usuario es `admin`. No lo habilites para `cashier`/`inventory` hasta
+    implementar escrituras/RPC del Sprint 8: el espejo es last-write-wins y puede pisar datos.
+30. **Descargar de Supabase.** `loadCloudData()` reemplaza la base local completa; siempre
+    debe pasar por confirmación de la UI y nunca ejecutarse de forma silenciosa.
+31. **Vercel.** `vercel.json` contiene los rewrites SPA y las cabeceras de caché. No los
+    elimines. El despliegue real lo hace el propietario de la cuenta; las variables de
+    entorno van en Vercel, no en el repo.
 
 ## Antes de dar algo por terminado
 
@@ -121,8 +129,11 @@ Si tocaste UI o flujos, haz además un smoke test en navegador
 | `src/auth/` | Tipos, roles y permisos de rutas |
 | `src/store/useAuthStore.ts` · `src/pages/Login.tsx` | Sesión, login y logout |
 | `src/components/auth/RequireAuth.tsx` | Guarda de rutas por sesión, estado y rol |
-| `src/services/cloud-migration.service.ts` | Migración/sincronización local → Supabase |
+| `src/services/cloud-migration.service.ts` | Subir/descargar datos entre local y Supabase |
+| `src/services/cloud-sync.service.ts` | Espejo automático para administradores |
 | `src/services/analytics.service.ts` · `src/pages/Analytics.tsx` | Consultas y pantalla de analítica |
+| `vercel.json` · `DEPLOY_VERCEL.md` | Configuración y guía de despliegue |
+| `README.md` · `INFORME_AUTONOMO.md` | Entrada al proyecto e informe de la sesión autónoma |
 | `public/manifest.webmanifest` · `public/sw.js` | PWA, iconos y caché offline |
 | `src/services/` | Lógica de negocio pura (testeable) |
 | `src/services/inventory.service.ts` | FEFO, vencimientos y ajustes trazables |

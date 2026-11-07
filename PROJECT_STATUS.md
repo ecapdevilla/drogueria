@@ -5,12 +5,17 @@
 
 ## Current Status ✅
 
-**Application Status:** COMPLETE and WORKING — Fase 0 + Fase 1
+**Application Status:** Fase 2 completa + Fase 3 en curso (Supabase, auth y analítica)
 - TypeScript compilation: PASS (`npm run typecheck`)
 - Lint: PASS (`npm run lint`)
-- Tests: PASS (73/73, `npm run test`)
+- Tests: PASS (186/186, `npm run test`)
+- E2E: PASS (5/5) + PWA (1/1)
 - Vite build: PASS (`npm run build`)
+- Lighthouse: 100 accesibilidad / 100 best practices / 100 SEO
 - Runtime: `npm run dev` (por defecto http://localhost:5173)
+
+> El estado detallado y las decisiones viven en [`HANDOFF.md`](./HANDOFF.md). Este archivo
+> conserva el historial de Fase 0 y Fase 1; al final se resume la Fase 2/3.
 
 **Parts Completed (of 10):**
 1. ✅ Sidebar.tsx - Fixed duplicate route `/productos` → `/clientes`, fixed all HTML entities/emojis
@@ -92,6 +97,10 @@
 /reportes - Reports
 /configuracion - Settings
 ```
+
+> **Actualización:** la migración real se hizo con **Supabase** (PostgreSQL + Auth + RLS),
+> no con `pg` directo ni Prisma. Ver `supabase/README.md` y `HANDOFF.md`. El análisis
+> histórico de PostgreSQL se conserva abajo como referencia.
 
 ## PostgreSQL Migration Analysis 🐘
 
@@ -281,4 +290,47 @@ Create `src/services/postgres.service.ts` with client setup.
 
 ---
 
-*Document generated as part of project maintenance. Fase 0 y Fase 1 completadas.*
+---
+
+# Fase 2 — Operación real sin backend ✅
+
+Completados y verificados los cinco sprints:
+
+1. Proveedores y compras.
+2. Inventario con vencimientos y ajustes trazables.
+3. POS con lector de código de barras, descuentos, pagos mixtos y recibo de 80 mm.
+4. Reportes por rango, utilidad por producto/categoría, ticket promedio, CSV y arqueo.
+5. Durabilidad: migraciones, respaldos validados, PWA offline, E2E y sincronización entre
+   pestañas.
+
+# Fase 3 — Supabase, usuarios y analítica 🚧
+
+## Sprint 6 — Auth y roles ✅
+
+- Proyecto Supabase `drogueria`.
+- Esquema relacional, RLS y seed ejecutados.
+- Login real con administrador, roles `admin`, `cashier` e `inventory`.
+- Guardas de ruta y navegación filtrada por rol.
+
+## Sprint 7 — Datos y analítica ✅
+
+- Vistas SQL: ventas diarias, utilidad por producto/categoría, medios de pago, clientes,
+  inventario y caja.
+- Migración/sincronización local → Supabase (manual y automática para admin).
+- Descarga desde Supabase para hidratar un equipo nuevo.
+- Pantalla `/analitica` con KPIs, tablas, filtros y exportaciones CSV.
+- Lighthouse 100/100/100 y configuración de Vercel lista.
+
+## Pendiente
+
+- Sprint 8: escrituras operativas directas a Supabase (RPC transaccionales) y multiusuario.
+- Probar RLS con usuarios `cashier` e `inventory`.
+- Despliegue real en Vercel y revisión de `npm audit`.
+- WhatsApp/IA quedan fuera de alcance por ahora.
+
+Ver [`INFORME_AUTONOMO.md`](./INFORME_AUTONOMO.md) para el detalle de la última sesión.
+
+---
+
+*Document generated as part of project maintenance. Fase 0, Fase 1 y Fase 2 completadas;
+Fase 3 en curso.*
