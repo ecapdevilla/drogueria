@@ -37,8 +37,14 @@ const toDate = (value?: string) => (value ? value.slice(0, 10) : null);
  * Crea una venta en Supabase mediante la RPC transaccional.
  * El servidor valida stock FEFO, precios, descuentos, pagos y movimientos.
  */
-export async function createSaleInCloud(draft: SaleDraft, context: CloudContext): Promise<Sale> {
+export async function createSaleInCloud(
+  draft: SaleDraft,
+  context: CloudContext,
+  idempotencyKey?: string,
+): Promise<Sale> {
   if (!supabase) throw new Error('Supabase no está configurado');
+
+  const key = idempotencyKey ?? crypto.randomUUID();
 
   const { data, error } = await supabase.rpc('create_sale', {
     p_store_id: context.storeId,
@@ -54,7 +60,7 @@ export async function createSaleInCloud(draft: SaleDraft, context: CloudContext)
     p_discount: draft.discount,
     p_customer_id: draft.customerId || null,
     p_cash_received: draft.cashReceived ?? null,
-    p_idempotency_key: crypto.randomUUID(),
+    p_idempotency_key: key,
   });
 
   if (error) throw new Error(error.message);

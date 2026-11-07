@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ArrowDownToLine, ArrowUpFromLine, CalendarDays, LogOut, Menu, Wallet } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { ROLE_LABELS } from '../../auth/permissions';
-import { isAuthEnabled } from '../../lib/supabase';
+import { isAuthEnabled, isCloudWriteEnabled } from '../../lib/supabase';
+import { pendingCount } from '../../services/offline-queue.service';
 import { expectedCash } from '../../services/cash.service';
 import { cop } from '../../utils/money';
 import { Button } from '../ui/Button';
@@ -39,6 +40,18 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   const logout = useAuthStore(s => s.logout);
 
   const activeSession = db.cashSessions.find(session => session.status === 'OPEN');
+  const [pending, setPending] = useState(0);
+
+  useEffect(() => {
+    const refresh = () => setPending(pendingCount());
+    refresh();
+    const id = window.setInterval(refresh, 5000);
+    window.addEventListener('storage', refresh);
+    return () => {
+      window.clearInterval(id);
+      window.removeEventListener('storage', refresh);
+    };
+  }, []);
   const [cashAction, setCashAction] = useState<'open' | 'close' | null>(null);
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
@@ -116,6 +129,13 @@ export function Topbar({ onMenuClick }: TopbarProps) {
               {activeSession ? 'Caja abierta' : 'Caja cerrada'}
             </span>
           </span>
+
+          {isCloudWriteEnabled && pending > 0 && (
+            <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 ring-1 ring-inset ring-amber-200">
+              <span className="h-2 w-2 rounded-full bg-amber-500" />
+              <span className="hidden sm:inline">{pending} venta(s) pendiente(s)</span>
+            </span>
+          )}
 
           {activeSession ? (
             <Button variant="secondary" size="sm" onClick={startClose}>

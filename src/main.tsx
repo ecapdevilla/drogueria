@@ -7,6 +7,7 @@ import { useAuthStore } from './store/useAuthStore';
 import { STORAGE_KEY, StorageService } from './services/storage.service';
 import { loadCloudData } from './services/cloud-migration.service';
 import { isCloudWriteEnabled } from './lib/supabase';
+import { drainQueue } from './services/offline-queue.service';
 import './styles/global.css';
 
 // Restaura la base de datos guardada antes de montar la aplicación.
@@ -29,6 +30,18 @@ async function hydrateFromCloud() {
     });
     useAppStore.setState({ db });
     StorageService.save(db);
+    if (isCloudWriteEnabled) {
+      const result = await drainQueue();
+      if (result.synced > 0) {
+        const fresh = await loadCloudData({
+          organizationId: profile.organization_id,
+          storeId: profile.store_id,
+          userId: profile.id,
+        });
+        useAppStore.setState({ db: fresh });
+        StorageService.save(fresh);
+      }
+    }
   } catch (error) {
     console.error('No se pudo cargar la base desde Supabase', error);
   } finally {
@@ -51,6 +64,11 @@ void useAuthStore.getState().initialize();
 // Mantiene sincronizadas las pestañas abiertas del mismo navegador.
 window.addEventListener('storage', event => {
   if (event.key === STORAGE_KEY) useAppStore.getState().load();
+});
+
+// Cuando vuelve la conexión, reintenta las operaciones pendientes.
+window.addEventListener('online', () => {
+  if (isCloudWriteEnabled) void drainQueue();
 });
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

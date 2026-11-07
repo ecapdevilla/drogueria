@@ -43,6 +43,7 @@ import {
   updateProductInCloud,
   updateSupplierInCloud,
 } from '../services/cloud-write.service';
+import { isNetworkError, enqueueSale } from '../services/offline-queue.service';
 import { loadCloudData } from '../services/cloud-migration.service';
 import { isCloudWriteEnabled } from '../lib/supabase';
 import { useAuthStore } from './useAuthStore';
@@ -333,26 +334,39 @@ export const useAppStore = create<AppStore>((set, get) => {
             throw new Error('Tu perfil no tiene organización o sucursal asignada');
           }
 
-          const sale = await createSaleInCloud(parsed as SaleDraft, {
+          const context = {
             organizationId: profile.organization_id,
             storeId: profile.store_id,
             userId: profile.id,
-          });
+          };
+          const idempotencyKey = crypto.randomUUID();
 
           try {
-            const freshDb = await loadCloudData({
-              organizationId: profile.organization_id,
-              storeId: profile.store_id,
-              userId: profile.id,
-            });
-            set({ db: freshDb });
-            StorageService.save(freshDb);
-          } catch (refreshError) {
-            console.error('La venta se creó, pero no se pudo refrescar la base', refreshError);
-          }
+            const sale = await createSaleInCloud(parsed as SaleDraft, context, idempotencyKey);
 
-          get().pushToast('Venta registrada', 'success');
-          return { sale, dbPatch: {} };
+            try {
+              const freshDb = await loadCloudData(context);
+              set({ db: freshDb });
+              StorageService.save(freshDb);
+            } catch (refreshError) {
+              console.error('La venta se creó, pero no se pudo refrescar la base', refreshError);
+            }
+
+            get().pushToast('Venta registrada', 'success');
+            return { sale, dbPatch: {} };
+          } catch (error) {
+            if (isNetworkError(error)) {
+              // Modo offline: registra la venta localmente y la encola para sincronizar.
+              const { db } = get();
+              const result = buildSaleLocal(parsed, db);
+              set({ db: { ...db, ...result.dbPatch } as DBShape });
+              get().save();
+              enqueueSale(parsed as SaleDraft, context, idempotencyKey);
+              get().pushToast('Venta registrada (pendiente de sincronización)', 'info');
+              return { sale: result.sale, dbPatch: {} };
+            }
+            throw error;
+          }
         }
 
         const { db } = get();
