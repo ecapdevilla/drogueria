@@ -24,6 +24,7 @@ navegación) en todos los módulos.
 
 - Foco inicial en el buscador de lotes.
 - `F2` vuelve al buscador.
+- Búsqueda por nombre, lote, código interno y **código de barras**.
 
 ### Compras
 
@@ -41,7 +42,11 @@ navegación) en todos los módulos.
 
 ### Gastos
 
+- Foco inicial en el buscador.
+- Filtro por descripción, categoría, método y notas.
+- `F2`: volver al buscador.
 - `Alt + N`: nuevo gasto.
+- `Alt + E`: exportar gastos CSV.
 - `Ctrl + Enter`: guardar.
 
 ### Devoluciones
@@ -69,14 +74,17 @@ navegación) en todos los módulos.
 
 ### POS
 
-- Ya existente: Enter escanea, `F2` busca, `F3` cobra.
+- Enter escanea/agrega por código.
+- `F2` busca, `F3` cobra.
+- `F4` imprime el recibo visible.
+- `Escape` vacía el carrito cuando no hay modal abierto.
 
 ## Pendiente / próximas mejoras
 
-- POS: `F4` imprimir recibo y `Escape` limpiar carrito.
-- Búsqueda por código de barras en Inventario y Reportes (hoy es texto libre).
+- Búsqueda por código de barras en Reportes.
 - Personalización de teclas desde Configuración.
 - Mostrar un indicador visual de “atajo disponible” en los botones principales.
+- Extender el alta rápida de producto a otros flujos si se requiere.
 
 ## Pruebas
 

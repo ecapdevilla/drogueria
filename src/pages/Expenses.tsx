@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Plus, Receipt, Trash2, TrendingDown } from 'lucide-react';
+import { Download, Plus, Receipt, Search, Trash2, TrendingDown } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -16,6 +16,7 @@ import { ExpenseInput, expenseSchema } from '../domain/schemas';
 import { Expense } from '../types';
 import { cop } from '../utils/money';
 import { formatDate } from '../utils/date';
+import { downloadCSV, toCSV } from '../utils/csv';
 import { useHotkeys } from '../hooks/useHotkeys';
 
 const CATEGORIES = ['Combustible', 'Mantenimiento', 'Sueldos', 'Servicios', 'Materiales', 'Otro'];
@@ -36,6 +37,8 @@ export default function Expenses() {
   const deleteExpense = useAppStore(s => s.deleteExpense);
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [q, setQ] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -53,10 +56,44 @@ export default function Expenses() {
     reset(EMPTY_EXPENSE);
   };
 
+  const total = db.expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const term = q.trim().toLowerCase();
+  const filtered = term
+    ? db.expenses.filter(expense =>
+        [expense.category, expense.description, expense.paymentMethod, expense.notes ?? '']
+          .join(' ')
+          .toLowerCase()
+          .includes(term),
+      )
+    : db.expenses;
+
+  const exportExpenses = () => {
+    downloadCSV(
+      'gastos.csv',
+      toCSV(
+        filtered.map(expense => ({
+          fecha: expense.date,
+          categoria: expense.category,
+          descripcion: expense.description,
+          monto: expense.amount,
+          metodo: expense.paymentMethod,
+          notas: expense.notes ?? '',
+        })),
+      ),
+    );
+  };
+
+  useEffect(() => {
+    searchRef.current?.focus();
+  }, []);
+
   useHotkeys(
     [
+      { key: 'F2', allowInInput: true, handler: () => searchRef.current?.focus() },
       { key: 'n', handler: () => setOpen(true) },
       { key: 'n', alt: true, allowInInput: true, handler: () => setOpen(true) },
+      { key: 'e', handler: exportExpenses },
+      { key: 'e', alt: true, allowInInput: true, handler: exportExpenses },
       {
         key: 'Enter',
         ctrl: true,
@@ -66,10 +103,8 @@ export default function Expenses() {
         },
       },
     ],
-    [open, handleSubmit, onSubmit],
+    [open, handleSubmit, onSubmit, exportExpenses],
   );
-
-  const total = db.expenses.reduce((sum, expense) => sum + expense.amount, 0);
 
   return (
     <div className="space-y-6">
@@ -127,8 +162,25 @@ export default function Expenses() {
       </div>
 
       <div className="card overflow-hidden">
-        <div className="border-b border-slate-100 px-4 py-3">
+        <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="section-title">Historial de gastos</h2>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="relative w-full sm:w-72">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                ref={searchRef}
+                placeholder="Buscar por descripción, categoría o método..."
+                value={q}
+                onChange={event => setQ(event.target.value)}
+                className="pl-9"
+                aria-label="Buscar gastos"
+              />
+            </div>
+            <Button variant="secondary" size="sm" onClick={exportExpenses}>
+              <Download className="h-4 w-4" />
+              Gastos CSV
+            </Button>
+          </div>
         </div>
         {db.expenses.length === 0 ? (
           <EmptyState
@@ -137,10 +189,16 @@ export default function Expenses() {
             description="Registra tus gastos operativos para verlos aquí."
             action={<Button onClick={() => setOpen(true)}>Registrar gasto</Button>}
           />
+        ) : filtered.length === 0 ? (
+          <EmptyState
+            icon={<Search className="h-7 w-7" />}
+            title="Sin resultados"
+            description={`No hay gastos que coincidan con «${q}».`}
+          />
         ) : (
           <Table
             bare
-            data={db.expenses}
+            data={filtered}
             columns={[
               { key: 'date', header: 'Fecha', render: (e: Expense) => formatDate(e.date) },
               { key: 'category', header: 'Categoría' },

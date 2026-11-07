@@ -39,12 +39,12 @@ Zod 4 · React Hook Form 7 · Vitest 2 + Testing Library.
 | --- | --- |
 | `npm run typecheck` | ✅ Sin errores |
 | `npm run lint` | ✅ Sin errores ni warnings |
-| `npm run test` | ✅ **194/194 pruebas en 25 archivos** |
+| `npm run test` | ✅ **204/204 pruebas en 27 archivos** |
 | `npm run build` | ✅ Build de producción generado; chunks `vendor`, `supabase` e `index` bajo 500 kB |
 | `npm run test:e2e` | ✅ **7/7** (venta, compra, devolución, respaldo, sincronización y atajos) |
 | `npm run test:e2e:pwa` | ✅ **1/1** (manifest, service worker y recarga offline sobre el build) |
 | Supabase | ✅ Login admin, RLS anónimo, 7 vistas de analítica, sync manual/automática y descarga desde la nube |
-| Lighthouse | ✅ **100 accesibilidad / 100 best practices / 100 SEO** en Dashboard, Productos, Reportes, Configuración y Analítica |
+| Lighthouse | ✅ **100 accesibilidad / 100 best practices / 100 SEO** en Dashboard, Productos, Compras, Gastos, POS, Reportes, Configuración y Analítica |
 | Smoke test Supabase | ✅ Datos demo, 2 ventas sincronizadas, `v_sales_daily` con $3.000, utilidad $1.400, analítica y CSV |
 | Smoke test navegador | ✅ Respaldo descargado, migración v1→v2, demo restaurada y CSV de analítica |
 
@@ -297,7 +297,7 @@ Los cinco sprints de la Fase 2 (Track A, sin backend) están cerrados.
   utilidad por producto/categoría, medios de pago, mejores clientes y riesgo de inventario.
 - [x] Exportaciones CSV de analítica y botón **Sincronizar ahora**.
 - [x] Smoke test real: 2 ventas, $3.000, utilidad $1.400 y pagos en efectivo.
-- [x] Lighthouse 100/100/100 en Dashboard, Productos, Reportes, Configuración y Analítica.
+- [x] Lighthouse 100/100/100 en Dashboard, Productos, Compras, Gastos, POS, Reportes, Configuración y Analítica.
 - [x] Configuración de Vercel (`vercel.json`, `.vercelignore`, `DEPLOY_VERCEL.md`).
 - [ ] Probar RLS de `cashier` e `inventory` (requiere crear esos usuarios).
 - [ ] Conectar las escrituras operativas directamente a Supabase (Sprint 8).
@@ -360,12 +360,16 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 - **Compras:** campo de código de barras por línea (Enter selecciona), alta rápida de
   producto si no existe, `Alt + N` y `Ctrl+Enter`.
 - **Caja:** `Alt + N`/`Alt + C` para apertura/cierre y Enter para ejecutar.
+- **Gastos:** buscador por descripción/categoría/método, `F2`, `Alt + N`, `Alt + E` (CSV)
+  y `Ctrl+Enter`.
+- **POS:** `F4` imprime el recibo y `Escape` vacía el carrito cuando no hay modal.
+- **Inventario:** búsqueda por producto, lote, código interno y código de barras.
 - **Gastos, Clientes, Proveedores:** `Alt + N`, `F2` donde aplica y `Ctrl+Enter`.
 - **Devoluciones:** `F2` y `Ctrl+Enter`.
 - **Reportes:** `F2` fechas y `Alt + E` exportar ventas.
 - **Configuración:** `Alt + B` respaldo y `Alt + S` sync.
 - Plan completo en `UX_ATAJOS_PLAN.md`.
-- Pruebas: **194/194 en 25 archivos**, **7/7 E2E** y **1/1 PWA**.
+- Pruebas: **204/204 en 27 archivos**, **7/7 E2E** y **1/1 PWA**.
 
 ### 2026-11-06 — Fase 3 · Sprint 7 completado (datos y analítica)
 - Vistas SQL de analítica con `security_invoker`, ejecutadas y verificadas en Supabase.

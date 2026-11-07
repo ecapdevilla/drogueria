@@ -104,6 +104,41 @@ describe('Inventory', () => {
     expect(screen.queryByText('L-OK')).not.toBeInTheDocument();
   });
 
+  it('filtra los lotes por código de barras y código interno del producto', async () => {
+    const acetaminofen = makeProduct({
+      id: 'prod-1',
+      internalCode: 'P-001',
+      barcode: '7701234567890',
+      commercialName: 'Acetaminofén 500 mg',
+    });
+    const ibuprofeno = makeProduct({
+      id: 'prod-2',
+      internalCode: 'P-002',
+      barcode: '7709876543210',
+      commercialName: 'Ibuprofeno 400 mg',
+    });
+    const lotA = makeLot('prod-1', { id: 'lot-1', code: 'L-A', expiryDate: inDays(200) });
+    const lotB = makeLot('prod-2', { id: 'lot-2', code: 'L-B', expiryDate: inDays(200) });
+    useAppStore.setState({
+      db: { ...emptyDB(), products: [acetaminofen, ibuprofeno], lots: [lotA, lotB] },
+    });
+
+    const user = userEvent.setup();
+    render(<Inventory />);
+
+    const search = screen.getByLabelText('Buscar lotes');
+    await user.type(search, '7709876543210');
+
+    expect(screen.getByText('L-B')).toBeInTheDocument();
+    expect(screen.queryByText('L-A')).not.toBeInTheDocument();
+
+    await user.clear(search);
+    await user.type(search, 'P-001');
+
+    expect(screen.getByText('L-A')).toBeInTheDocument();
+    expect(screen.queryByText('L-B')).not.toBeInTheDocument();
+  });
+
   it('valida en español la cantidad del ajuste', async () => {
     const product = makeProduct({ id: 'prod-1', stock: 10 });
     const lot = makeLot('prod-1', { id: 'lot-1', code: 'L-001', quantity: 10 });

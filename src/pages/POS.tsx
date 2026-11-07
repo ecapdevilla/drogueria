@@ -221,11 +221,26 @@ export default function POS() {
       } else if (event.key === 'F3') {
         event.preventDefault();
         if (cart.length && !paymentOpen && !receipt) setPaymentOpen(true);
+      } else if (event.key === 'F4') {
+        event.preventDefault();
+        if (receipt) {
+          window.print();
+        } else {
+          pushToast('No hay recibo para imprimir', 'info');
+        }
+      } else if (event.key === 'Escape') {
+        // Deja que los modales gestionen su propio cierre con Escape.
+        if (!paymentOpen && !receipt && cart.length) {
+          event.preventDefault();
+          setCart([]);
+          setGlobalDiscount(0);
+          pushToast('Carrito vaciado', 'info');
+        }
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [cart.length, paymentOpen, receipt]);
+  }, [cart.length, paymentOpen, receipt, pushToast]);
 
   return (
     <div className="space-y-6">

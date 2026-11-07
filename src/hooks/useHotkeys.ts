@@ -64,12 +64,21 @@ export const GLOBAL_SHORTCUTS: { keys: string; description: string }[] = [
 
 /** Atajos contextuales que se muestran en F1 según la ruta. */
 export const PAGE_SHORTCUTS: Record<string, { keys: string; description: string }[]> = {
+  '/pos': [
+    { keys: 'Enter', description: 'Agregar por código de barras' },
+    { keys: 'F2', description: 'Enfocar la búsqueda' },
+    { keys: 'F3', description: 'Abrir el cobro' },
+    { keys: 'F4', description: 'Imprimir el recibo' },
+    { keys: 'Escape', description: 'Vaciar el carrito' },
+  ],
   '/productos': [
     { keys: 'Alt + N', description: 'Nuevo producto' },
     { keys: 'F2', description: 'Enfocar el buscador' },
     { keys: 'Ctrl + Enter', description: 'Guardar el producto' },
   ],
-  '/inventario': [{ keys: 'F2', description: 'Enfocar el buscador de lotes' }],
+  '/inventario': [
+    { keys: 'F2', description: 'Enfocar el buscador (producto, lote, código o barras)' },
+  ],
   '/compras': [
     { keys: 'Alt + N', description: 'Nueva compra' },
     { keys: 'Enter', description: 'Buscar producto por código de barras' },
@@ -81,6 +90,8 @@ export const PAGE_SHORTCUTS: Record<string, { keys: string; description: string 
   ],
   '/gastos': [
     { keys: 'Alt + N', description: 'Nuevo gasto' },
+    { keys: 'F2', description: 'Enfocar el buscador' },
+    { keys: 'Alt + E', description: 'Exportar gastos CSV' },
     { keys: 'Ctrl + Enter', description: 'Guardar el gasto' },
   ],
   '/devoluciones': [

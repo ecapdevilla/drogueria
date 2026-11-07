@@ -41,6 +41,8 @@ type StatusFilter = 'ALL' | ExpiryStatus;
 interface InventoryRow {
   lot: Lot;
   productName: string;
+  internalCode: string;
+  barcode: string;
   status: ExpiryStatus;
   days: number;
 }
@@ -102,6 +104,8 @@ export default function Inventory() {
       return {
         lot,
         productName: product?.commercialName ?? 'Producto eliminado',
+        internalCode: product?.internalCode ?? '',
+        barcode: product?.barcode ?? '',
         status: expiryStatus(lot.expiryDate, now),
         days: daysUntilExpiry(lot.expiryDate, now),
       };
@@ -114,7 +118,9 @@ export default function Inventory() {
       row =>
         !term ||
         row.lot.code.toLowerCase().includes(term) ||
-        row.productName.toLowerCase().includes(term),
+        row.productName.toLowerCase().includes(term) ||
+        row.internalCode.toLowerCase().includes(term) ||
+        row.barcode.toLowerCase().includes(term),
     );
 
   const withStock = allRows.filter(row => row.lot.quantity > 0);
@@ -265,7 +271,7 @@ export default function Inventory() {
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input
                 ref={searchRef}
-                placeholder="Buscar por producto o lote..."
+                placeholder="Buscar por producto, lote, código o barras..."
                 value={filter}
                 onChange={event => setFilter(event.target.value)}
                 className="pl-9"

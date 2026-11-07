@@ -8,7 +8,7 @@
 **Application Status:** Fase 2 completa + Fase 3 en curso (Supabase, auth y analítica)
 - TypeScript compilation: PASS (`npm run typecheck`)
 - Lint: PASS (`npm run lint`)
-- Tests: PASS (194/194, `npm run test`)
+- Tests: PASS (204/204, `npm run test`)
 - E2E: PASS (7/7) + PWA (1/1)
 - Vite build: PASS (`npm run build`)
 - Lighthouse: 100 accesibilidad / 100 best practices / 100 SEO

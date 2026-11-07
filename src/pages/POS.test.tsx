@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import POS from './POS';
 import { useAppStore } from '../store/useAppStore';
 import { emptyDB } from '../types/schema';
@@ -55,6 +55,55 @@ describe('POS', () => {
     await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancelar' }));
     fireEvent.keyDown(window, { key: 'F2' });
     expect(search).toHaveFocus();
+  });
+
+  it('vacía el carrito con Escape cuando no hay modales abiertos', async () => {
+    setupProduct();
+    const user = userEvent.setup();
+    render(<POS />);
+
+    const search = screen.getByLabelText('Buscar productos para vender');
+    await user.type(search, '7701234567890{Enter}');
+    expect(screen.getByText('1 uds.')).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+
+    expect(screen.getByText('Carrito vacío')).toBeInTheDocument();
+    expect(screen.queryByText('1 uds.')).not.toBeInTheDocument();
+    expect(useAppStore.getState().toasts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ message: 'Carrito vaciado', type: 'info' }),
+      ]),
+    );
+  });
+
+  it('imprime el recibo con F4 y avisa cuando no hay recibo', async () => {
+    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {});
+    setupProduct();
+    const user = userEvent.setup();
+    render(<POS />);
+
+    fireEvent.keyDown(window, { key: 'F4' });
+    expect(printSpy).not.toHaveBeenCalled();
+    expect(useAppStore.getState().toasts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ message: 'No hay recibo para imprimir', type: 'info' }),
+      ]),
+    );
+
+    const search = screen.getByLabelText('Buscar productos para vender');
+    await user.type(search, '7701234567890{Enter}');
+    await user.click(screen.getByRole('button', { name: /^Cobrar/ }));
+
+    const dialog = screen.getByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: /confirmar cobro/i }));
+
+    await waitFor(() => expect(screen.getByText('Recibo de venta')).toBeInTheDocument());
+
+    fireEvent.keyDown(window, { key: 'F4' });
+    expect(printSpy).toHaveBeenCalledTimes(1);
+
+    printSpy.mockRestore();
   });
 
   it('cobra con pago mixto, calcula vueltas y muestra el recibo', async () => {

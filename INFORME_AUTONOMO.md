@@ -190,8 +190,11 @@ lo que ya funcionaba ni hacer operaciones destructivas o despliegues reales.
 - Inventario: autofoco y `F2`.
 - Compras: búsqueda por código de barras por línea, `N` y `Ctrl+Enter`.
 - Plan detallado en `UX_ATAJOS_PLAN.md`.
-- Pruebas: **194/194 en 25 archivos**, **7/7 E2E** y **1/1 PWA**.
-- Pendiente: extender atajos al POS (F4/Escape) y personalización de teclas.
+- POS: `F4` imprimir recibo y `Escape` vaciar carrito.
+- Gastos: búsqueda por descripción/categoría/método, `F2`, `Alt+E` CSV y `Ctrl+Enter`.
+- Inventario: búsqueda por nombre, lote, código interno y código de barras.
+- Pruebas: **204/204 en 27 archivos**, **7/7 E2E** y **1/1 PWA**.
+- Pendiente: personalización de teclas y búsqueda por código en Reportes.
 
 ---
 
