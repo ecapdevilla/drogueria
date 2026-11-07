@@ -347,7 +347,7 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 - [x] Escritura directa verificada (edición de producto persistida tras recargar).
 - [x] Ejecutar `202611070002_operations_rpc.sql` en Supabase.
 - [x] Probar compra, ajuste, devolución y caja reales en modo cloud.
-- [ ] Cola offline con idempotencia.
+- [x] Cola offline con idempotencia para ventas (reintento al reconectar).
 - [ ] Probar RLS con usuarios `cashier` e `inventory`.
 - [ ] Realtime para que una venta aparezca en otro equipo sin recargar.
 
@@ -394,6 +394,16 @@ El diseño técnico completo está en [`SPRINT_8_PLAN.md`](./SPRINT_8_PLAN.md).
 ---
 
 ## 9. Bitácora
+
+### 2026-11-07 — Fase 3 · Sprint 8 (offline: cola de ventas)
+- Nuevo `src/services/offline-queue.service.ts`:
+  - `isNetworkError`, `enqueueSale`, `listPending`, `pendingCount`, `drainQueue`.
+  - Almacenamiento en `localStorage` (`drogueria_pending_ops`).
+- `buildSale` en modo cloud: si la RPC falla por red, registra la venta localmente,
+  la encola con la misma idempotency key y muestra "pendiente de sincronización".
+- `main.tsx`: drena la cola al hidratar desde la nube y al recuperar conexión (`online`).
+- `Topbar`: indicador ámbar con el número de ventas pendientes (modo cloud).
+- Pruebas: **204/204**, typecheck, lint y build correctos.
 
 ### 2026-11-07 — Fase 3 · Sprint 8 (bloque 2: operaciones y escrituras directas)
 - Nueva migración `202611070002_operations_rpc.sql`:
