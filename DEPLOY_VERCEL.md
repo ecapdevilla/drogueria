@@ -14,7 +14,7 @@
 - **Variables:** `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_AUTH_ENABLED=true`
   y `VITE_CLOUD_AUTO_SYNC=true` en Production, Preview y Development.
 - **Verificado:** login, conexión con Supabase Auth, rutas SPA, manifest, service worker y
-  0 errores de consola.
+  0 errores de consola. Build con **Node 26** e instalación con **`npm ci`**.
 - **Pendiente:** configurar `Site URL` y `Redirect URLs` en Supabase Auth para correos de
   confirmación/recuperación (el login por contraseña ya funciona).
 
@@ -24,7 +24,7 @@
 - Rama de producción: **`fase-3-supabase`** (rama por defecto en GitHub).
 - `master` también está sincronizado con el mismo commit.
 - Último commit de despliegue: `7065e5e`.
-- `.nvmrc` fija **Node 20**.
+- `.nvmrc` fija **Node 26** (requisito actual de Vercel).
 - `vercel.json`, `.vercelignore`, manifest y service worker ya están en el repo.
 
 ## 1. Importar el proyecto
@@ -36,8 +36,8 @@
    - Framework Preset: **Vite**
    - Build Command: `npm run build`
    - Output Directory: `dist`
-   - Install Command: `npm install`
-   - Node.js Version: **20** (el repo incluye `.nvmrc`)
+   - Install Command: `npm ci` (determinista, igual que CI)
+   - Node.js Version: **26.x** (requisito actual de Vercel; el repo incluye `.nvmrc`)
    - Production Branch: **`fase-3-supabase`** (rama por defecto del repo).
 
 `vercel.json` ya configura:
