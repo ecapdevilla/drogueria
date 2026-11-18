@@ -41,6 +41,14 @@ export default function Dashboard() {
     value: value as number,
   }));
 
+  // Ventas del mes en curso (para el KPI destacado del dashboard).
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthSales = db.sales.filter(sale => new Date(sale.createdAt) >= monthStart);
+  const monthTotal = monthSales.reduce((sum, sale) => sum + sale.total, 0);
+  const monthCount = monthSales.length;
+  const monthName = now.toLocaleDateString('es-CO', { month: 'long', year: 'numeric' });
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -56,6 +64,30 @@ export default function Dashboard() {
           </Link>
         }
       />
+
+      {/* Ventas del mes en curso */}
+      <section className="card relative overflow-hidden bg-gradient-to-r from-brand-600 to-brand-700 p-5 text-white shadow-card">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"
+        />
+        <div className="relative flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wider text-brand-100">
+              Ventas del mes
+            </p>
+            <p className="mt-1 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+              {cop(monthTotal)}
+            </p>
+            <p className="mt-1 text-xs text-brand-100">
+              {monthCount} venta(s) registradas en {monthName}
+            </p>
+          </div>
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-inset ring-white/20">
+            <Wallet className="h-6 w-6" />
+          </div>
+        </div>
+      </section>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KPI
